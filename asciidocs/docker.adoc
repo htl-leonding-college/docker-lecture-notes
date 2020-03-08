@@ -85,7 +85,7 @@ docker run alpine echo Hello 4bhif!
 docker run -it alpine /bin/sh
 ----
 
-== Ub untu mit einem externen Volume
+== Ubuntu mit einem externen Volume
 ----
 docker run -it --name syp_ubuntu -v ${PWD}/my_opt:/opt ubuntu:18.04 /bin/bash
 ----
@@ -99,25 +99,26 @@ docker run --rm docker/whalesay cowsay hello 4bhif
 
 === nginx - Step 1
 
+.Starting nginx
 ----
 docker run --rm -p 8081:80 --name nginx nginx
 ----
 
 === nginx - Step 2
 
-.Terminal 1
+.Terminal 1: Starting nginx
 ----
 docker run --rm -p 8081:80 --name nginx nginx
 ----
 
-.Terminal 2
+.Terminal 2: Open a terminal in the docker container
 ----
 docker exec -it nginx /bin/sh
 ----
 
 === nginx - Step 3
 
-.Terminal 1
+.Terminal 1: Start nginx with a volume in the current folder
 ----
 docker run --rm -v ${PWD}/data:/usr/share/nginx/html -p 8081:80 --name nginx nginx
 ----
