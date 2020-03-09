@@ -6,6 +6,19 @@ Thomas W. Stütz <t.stuetz@htl-leonding.ac.at>
 ifndef::imagesdir[:imagesdir: images]
 ifndef::sourcedir[:sourcedir: ../../main/java]
 :icons: font
+:toc: left
+:sectnums:
+
+== Was ist Docker?
+
+* Eine Technologie, um eine Application und alle ihre Abhängigkeiten in einen
+einzelnen, leicht zu transportierenden Container zu packen.
+
+* Wird eine Applikation in einen Docker-Container gepackt, so ist sichergestellt,
+dass die Laufzeitumgebung unverändert bleibt, auch wenn der container auf einem
+anderen Hostsystem läuft.
+
+
 
 == Wie funktioniert Docker?
 
@@ -72,20 +85,87 @@ Host OS
 
  docker version
 
-== Image alpine ausführen
+----
+% docker version
+Client: Docker Engine - Community
+ Version:           19.03.5
+ API version:       1.40
+ Go version:        go1.12.12
+ Git commit:        633a0ea
+ Built:             Wed Nov 13 07:22:34 2019
+ OS/Arch:           darwin/amd64
+ Experimental:      false
+
+Server: Docker Engine - Community
+ Engine:
+  Version:          19.03.5
+  API version:      1.40 (minimum version 1.12)
+  Go version:       go1.12.12
+  Git commit:       633a0ea
+  Built:            Wed Nov 13 07:29:19 2019
+  OS/Arch:          linux/amd64
+  Experimental:     true
+ containerd:
+  Version:          v1.2.10
+  GitCommit:        b34a5c8af56e510852c35414db4c1f4fa6172339
+ runc:
+  Version:          1.0.0-rc8+dev
+  GitCommit:        3e425f80a8c931f88e6d94a8c831b9d5aa481657
+ docker-init:
+  Version:          0.18.0
+  GitCommit:        fec3683
+----
 
 ----
-docker run alpine echo Hello 4bhif!
+sudo usermod -a -G docker jenkins
+----
+
+== Docker Networks
+
+* Konfiguriert die Verbindung zwischen Container und zum Internet
+* Container können ports freigeben und so im Internet verfügbar machen
+* Man verwendet die *Docker CLI*
+* Network Drivers
+** *Bridge*: Virtuelles Netzwerk, um mehrere Container miteinander zu verbinden
+** *Host*: Entfernt die NEtzwerk-Isolation zwischen Host und Containern. Die Container benutzen
+das Netzwerk des Hosts direkt
+** *Overlay*: Verbindet Container die auf unterschiedlichen Docker-Hosts laufen
+** *Macvlan*: Weist eine MAC-Adresse einem Container zu. Für low-level Netzwerkanforderungen
+** *None*: Deaktiviert das Netzwerk zwischen den Containern
+
+* Bind Mounts and Volumes
+
+* *Bind Mounts* ein File oder Verzeichnis des Containers wird in einem File oder Verzeichnis zugänglich gemacht
+** docker run -v ${PWD}/directory-on-host:/directory-in-container
+* *Named Volumes* existieren am Host. Sie werden durch die Docker CLI manipuliert.
+** docker volume create my-volume
+** docker run -v my-volume:/directory-in-container
+
+* Volumes verfügen über mehr Features wie *Cloud Storage Backends*
+
+== Docker Registries
+
+* a remote repository for storing Docker images
+* public or private
+* self-hosted or third-party service
+* ie Docker Hub, Quay.io
+
+== Erste Beispiele mit Docker
+
+=== Image alpine ausführen
+
+----
+docker run alpine echo Hello 4xhif!
 ----
 
 
-== Image alpine interaktiv
+=== Image alpine interaktiv
 
 ----
 docker run -it alpine /bin/sh
 ----
 
-== Ubuntu mit einem externen Volume
+=== Ubuntu mit einem externen Volume
 ----
 docker run -it --name syp_ubuntu -v ${PWD}/my_opt:/opt ubuntu:18.04 /bin/bash
 ----
@@ -148,13 +228,15 @@ Softwareprodukt ein eigener Docker-Container erstellt
 
 == Starten einer Jenkins-Instanz in Docker
 
- docker run -it \
-            -v /var/run/docker.sock:/var/run/docker.sock \
-            -v ${PWD}/jenkins-data:/var/jenkins_home \
-            -p 8080:8080 \
-            --name local-jenkins \
-            getintodevops/jenkins-withdocker:lts-docker19.03.5
-
+----
+docker run -it \
+           --rm \
+           -v /var/run/docker.sock:/var/run/docker.sock \
+           -v ${PWD}/jenkins-data:/var/jenkins_home \
+           -p 8080:8080 \
+           --name local-jenkins \
+           getintodevops/jenkins-withdocker:lts-docker19.03.5
+----
 
 ////
 == Remove Docker-Volumes
@@ -174,8 +256,37 @@ Aussteigen mit Ctrl-a Ctrl-d
 
 ////
 
+.root-password
+image:jenkins-0010-root-password.png[]
+
+image:jenkins-0020-unlock-jenkins.png[]
+
+image::jenkins-0030-install-suggested-plugins.png[]
+
+image:jenkins-0040-create-suggested-plugins.png[]
+
+image:jenkins-0050-create-first-admin-user.png[]
+
+image:jenkins-0060-instance-configuration.png[]
+
+image:jenkins-0070-jenkins-is-ready.png[]
+
+image:jenkins-0080-dashboard.png[]
+
+image:jenkins-0090-dashboard-people.png[]
+
+image:jenkins-0100-people-configure.png[]
+
+image:jenkins-0110-change-password.png[]
+
+
+
+
+
+
 == Dockerfile
 
+[source,docker]
 ----
 FROM jenkins/jenkins:lts
 MAINTAINER miiro@getintodevops.com
@@ -346,31 +457,74 @@ pipeline {
 image::jenkins-23-assignment-hello-world.png[background, size=cover]
 
 
-== Build a pipeline
+== Build a pipeline with Jenkins
+
+=== Jenkins
+
+* Automation Server mostly used for CI and CD pipelines
+* Pipelines as code
+* Pipelines werden mittels *Jenkinsfiles* deklariert
+* Java
+
+=== Komponenten
+
+* *Job* oder *project*
+* *Master* hosted das Jenkins user-interface
+* *Agent* kann auf unterschiedlichen Server laufen. Sind optional.
+* *Executor* ist ein Slot in dem ein Job läuft. Sowohl Masters als auch Agents können Executors haben.
+
+=== Job Types
+
+* Freestyle
+* Pipeline
+* Multibranch Pipeline
+* GitHub Organisation Job
+
+=== Jenkinsfile
+
+* Text file definert einen Jenkins Pipeline Job
+* Deklarativ (einfach) oder gescripted (mehr Möglichkeiten, Groovy)
+* Stages für unterschiedliche Teile der Pipeline: build, test, deploy, ...
+* werden im Git-Repository gespeichert
 
 === Overview
 
-image:jenkins-30-overview-of-pipeline.png[]
+[plantuml,verview-pipeline,png]
+----
+@startuml
+agent "Trigger:\n**Code changed in Git**\n**repository**" as trigger
+agent "Stage: \n**Build docker image**" as build
+agent "Stage: \n**Run tests**" as test
+agent "Stage: \n**Push image to**\n**docker hub**" as push
+trigger -> build
+build -> test
+test -> push
+@enduml
+----
+
+IMPORTANT: Man benötigt einen Account auf https://hub.docker.com
 
 === Steps
 
-image:jenkins-31-steps.png[]
+* Clonen des Vorlageprojekts
+* Kopieren des Templates, um ein eigenes Applikations-Repository zu erstellen
+* Erstellen eines GitHub-Repositories und pushen des Codes
 
-=== Clonen des Vorlageprojekts
+==== Clonen des Vorlageprojekts
 
 [source,bash]
 ----
 git clone https://github.com/getintodevops/bestpractices-docker-jenkins.git
 ----
 
-=== Kopieren des tatsächlichen Projekts
+==== Kopieren des tatsächlichen Projekts
 
 [source,bash]
 ----
 cp -r bestpractices-docker-jenkins/example-app .
 ----
 
-=== Initialize Git-Repository
+==== Initialize Git-Repository
 
 [source,bash]
 ----

@@ -914,24 +914,24 @@ Softwareprodukt ein eigener Docker-Container erstellt</p>
 <div class="sectionbody">
 <div class="listingblock">
 <div class="content">
-<pre>FROM jenkins/jenkins:lts
-MAINTAINER miiro@getintodevops.com
-USER root
+<pre class="rouge highlight"><code data-lang="docker"><span class="k">FROM</span><span class="s"> jenkins/jenkins:lts</span>
+<span class="k">MAINTAINER</span><span class="s"> miiro@getintodevops.com</span>
+<span class="k">USER</span><span class="s"> root</span>
 
-# Install the latest Docker CE binaries
-RUN apt-get update &amp;&amp; \
-    apt-get -y install apt-transport-https \
-      ca-certificates \
-      curl \
-      gnupg2 \
-      software-properties-common &amp;&amp; \
-    curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg &gt; /tmp/dkey; apt-key add /tmp/dkey &amp;&amp; \
-    add-apt-repository \
-      "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") \
-      $(lsb_release -cs) \
-      stable" &amp;&amp; \
-   apt-get update &amp;&amp; \
-   apt-get -y install docker-ce</pre>
+<span class="c"># Install the latest Docker CE binaries</span>
+<span class="k">RUN </span>apt-get update <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    apt-get <span class="nt">-y</span> <span class="nb">install </span>apt-transport-https <span class="se">\
+</span>      ca-certificates <span class="se">\
+</span>      curl <span class="se">\
+</span>      gnupg2 <span class="se">\
+</span>      software-properties-common <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    curl <span class="nt">-fsSL</span> https://download.docker.com/linux/<span class="si">$(</span><span class="nb">.</span> /etc/os-release<span class="p">;</span> <span class="nb">echo</span> <span class="s2">"</span><span class="nv">$ID</span><span class="s2">"</span><span class="si">)</span>/gpg <span class="o">&gt;</span> /tmp/dkey<span class="p">;</span> apt-key add /tmp/dkey <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    add-apt-repository <span class="se">\
+</span>      <span class="s2">"deb [arch=amd64] https://download.docker.com/linux/</span><span class="si">$(</span><span class="nb">.</span> /etc/os-release<span class="p">;</span> <span class="nb">echo</span> <span class="s2">"</span><span class="nv">$ID</span><span class="s2">"</span><span class="si">)</span><span class="s2"> </span><span class="se">\
+</span><span class="s2">      </span><span class="si">$(</span>lsb_release <span class="nt">-cs</span><span class="si">)</span><span class="s2"> </span><span class="se">\
+</span><span class="s2">      stable"</span> <span class="o">&amp;&amp;</span> <span class="se">\
+</span>   apt-get update <span class="o">&amp;&amp;</span> <span class="se">\
+</span>   apt-get <span class="nt">-y</span> <span class="nb">install </span>docker-ce</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1737,7 +1737,7 @@ git push origin master</code></pre>
 <div id="footer">
 <div id="footer-text">
 Version {project-version}<br>
-Last updated 2020-03-09 06:10:10 UTC
+Last updated 2020-03-09 06:17:25 UTC
 </div>
 </div>
 <style>
