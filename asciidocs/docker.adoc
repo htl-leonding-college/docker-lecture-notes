@@ -133,7 +133,7 @@ das Netzwerk des Hosts direkt
 ** *Macvlan*: Weist eine MAC-Adresse einem Container zu. Für low-level Netzwerkanforderungen
 ** *None*: Deaktiviert das Netzwerk zwischen den Containern
 
-* Bind Mounts and Volumes
+== Bind Mounts and Volumes
 
 * *Bind Mounts* ein File oder Verzeichnis des Containers wird in einem File oder Verzeichnis zugänglich gemacht
 ** docker run -v ${PWD}/directory-on-host:/directory-in-container
@@ -534,7 +534,7 @@ git init
 
 === Create Git-Repository
 
-image:jenkins-32-create-repository.png[]
+image:jenkins-0120-create-repository.png[]
 
 === Connect local Repo to GitHub
 
@@ -654,7 +654,7 @@ node {
     }
 
     stage('Build image') {
-        app = docker.build('htl-leonding/example-app')
+        app = docker.build('htlleonding/example-app')
     }
 
     stage('Push image') {
@@ -666,10 +666,17 @@ node {
 }
 ----
 
+|===
+| command | purpose
+
+|checkout scm
+|scm ... source code management. Der Sourcecode wird aus dem git-repo ausgecheckt.
+
+|===
 
 === Add Files to Repo
 
-[source,bash]
+[source,shell]
 ----
 git add Dockerfile Jenkinsfile
 git commit -m 'pipeline configuration'
@@ -804,7 +811,7 @@ You can use the github-authentication-plug. so the members of a github organisza
 
 == Managing Dependencies
 
-=== An Applications needs Node 7
+=== An Applications needs Node 10
 
 [plantuml,node10,png]
 ----
@@ -815,7 +822,7 @@ digraph foo {
 @enduml
 ----
 
-=== Another Applications needs Node 9
+=== Another Applications needs Node 13
 
 [plantuml,node13,png]
 ----
