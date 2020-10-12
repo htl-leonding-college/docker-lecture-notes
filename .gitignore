@@ -4,4 +4,7 @@ build-docs-revealjs/
 target/
 asciidocs/revealjs/
 revealjs.zip
-/images.old/
+.idea/
+*.iml
+.DS_Store
+.env
