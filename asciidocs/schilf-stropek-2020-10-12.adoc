@@ -1,0 +1,342 @@
+= Docker Weiterbildung - Rainer Stropek
+Thomas W. Stütz <t.stuetz@htl-leonding.ac.at>
+2020-10-12, Mitschrift der schulinternen Weiterbildung 12.-13.Oktober 2020
+:revnumber: {project-version}
+:example-caption!:
+ifndef::imagesdir[:imagesdir: images]
+ifndef::sourcedir[:sourcedir: ../../main/java]
+:icons: font
+:toc: left
+:sectnums:
+
+== What is Docker?
+
+* Frage: Was wäre, wenn es kein Docker gäbe
+** Wir müssten für alles, einen eigenen Server aufsetzen
+
+* Es können verschiedene Linux-Distributionen als Host und im Docker verwendet werden
+** Es werden die *Kernel-Funktionen* geteilt
+
+* Jeder Linux-Container hat einen Namespace
+** vergleichbar mit Scheuklappen
+** es gibt zB nur ein virtuelles Netzwerk. Jeder Container sieht nur dieses Netzwerk.
+** Container run in user space and use kernel of host
+** Docker builds on Linux Containers (LXC)
+
+* Nachteil von Docker-Containern zu virtuellen Maschinen
+** Die Trennung ist nicht so hart -> Sicherheitsaspekte
+** Virtuelle Maschinen sind sicherer.
+** "Die Wand zwischen Host und Docker-Container ist bei Docker-Containern nicht so dick"
+*** Virtuelle Maschine: Eigenes Haus mit eigener Zufahrt
+*** Docker-Container: Wie Eigentumswohnung
+** Wenn Inhalt trusted oder semi-trusted -> Docker-Container
+** Wenn Inhalt untrusted -> Virtuelle Maschinen oder gar keine Virtualisierung
+** Mann kann Host-OS und Docker-Container-OS kann man nicht mischen
+*** nur Win-Win oder Linux-Linux
+
+https://docs.docker.com/get-started/#containers-and-virtual-machines
+
+image:container.png[width=300]
+image:vm.png[width=300]
+
+* Vorteile
+** Fast
+*** Boot time
+** Small
+** Agile
+*** Docker-in-Docker
+** Portabel
+** Immutable
+*** Server werden nicht mehr gepatcht
+**** Analogie: Hauskatze vs 3 Kühe in Stall eines bäuerlichen Betriebs
+
+* Windows-Subsystem
+** (Vollwertiger) Kernel, der auch auf Windows zugreifen kann
+** Speziell für Schüler ist WSL brauchbar
+** Aus dem Microsoft-Store
+*** *Use the WSL 2 based engine* -> dann braucht man die Hyper-V Virtualiserung nicht mehr
+*** Docker Toolbox ist veraltet (Legacy) und sollte nicht mehr verwendet werden -> Docker Community Edition bzw Docker Desktop verwenden
+*** Docker Desktop funktioniert nun auch auf Windows Home
+** Zugriff auf lokale Festplatte: /mnt/..
+** man kann auch Windows Programme starten zB `calc`
+** Windows Terminal (wt) im File Explorer oben eingeben (in Adressleiste)
+
+
+== Docker's Technical Components
+
+* Linux Container Format
+* Isolation Layers
+* Logging
+* Interactive shell
+** Harry-Potter-Programmieren: kein SSH usw
+
+* Docker Daemon
+** bietet nach außen eine RESTful API an, mit der man Container steuern kann
+** Sämtliche Kommandos laufen über die REST-API
+*** Kleines NodeJS, Quarkus oder c# Programm zum starten eines Containers
+*** auch mit Insomnia, Postman usw möglich
+
+* Clients
+** Docker Dashboard
+*** Einfache GUI zum Starten, Stoppen und Review von Docker
+** Plugins in VSCode, IntelliJ, ...
+
+
+== What to Use Docker For?
+
+* Make dev/test/prod-cycle more productive
+** Developers build containers, not apps
+** Containerize build-, test- and CI-tools
+
+* Segregation of Duties
+** Klarere Abgrenzung der Aufgabenbereiche in der Wirtschaft
+*** Früher Admin -> heute eher nicht mehr
+*** Ein Dev kümmert sich um die Apps (die in Containern laufen)
+*** Ein Ops kümmern sich um den Betrieb der Container
+
+* Microservices
+** Isolieren Dienste (Services)
+** Konsistent über die Phasen (stages): dev/test/prod
+*** Mit Docker können viele Aspekte von verteilten Systemen geübt werden
+
+* Testen auch komplexer Umgebungen lokal
+** Containers sind leichtgewichtig
+
+== Lab
+
+[source,bash]
+----
+docker info
+docker run -it --rm ubuntu # <.> <.>
+----
+
+<.> -it ... interactive terminal
+<.> --rm ... remove container after stopping (exiting the shell)
+
+IMPORTANT: Achte auf die Geschwindigkeit (beim Start) des Docker Containers
+
+TIP: Tool im VSC -> Remote Development
+
+* Den Docker Container im VSC links oben mit rechter Maustaste anklicken
+* `Attach to Container` anklicken
+
+image:vsc-remote-access-to-container.png[]
+
+== Docker Cluster Solutions
+
+* Docker Swarm (wird kaum verwendet)
+* Kubernetes
+* Azure Kubernetes Service (AKS)
+** soll für Schüler kostenfrei sein,
+** nur die virtuellen Maschinen sind kostenpflichtig
+** Azure Sponsorship
+** 100 Doller = 100 Euro, hartes Limit, kann nicht überzogen werden
+** wenn man eine Bestätigung (Schülerausweis) hochlädt, kann es sein, dass man jählich 100 $ bekommt
+** für Projekte eher nicht geeignet
+** ALs Lehrer kann man sich auf azure.com einen free-account anlegen
+*** Man muss Kreditkarte hinterlegen
+*** nach 30 Tagen unbedingt löschen -> Im Kalender eintragen
+
+
+== Access Docker Remotely
+
+* Man kann im EDV Saal einen Linux Rechner mit einem Docker-Daemon betreiben
+* Die Clients müssen nur eine Umgebungsvariable setzen und brauchen dann keine Root Rechte
+
+[source,bash]
+----
+// Set environment variable (secure by default)
+export DOCKER_HOST=tcp://40.68.81.114:2375
+docker info
+docker ps
+----
+
+IMPORTANT: Diese Lösung NIE, NIE, NIE ungeschützt im Internet verwenden
+
+* Man braucht dann die Docker-Client-Tools
+** nur downloaden und entpacken
+** nichts muss installiert werden
+
+== Diverse Befehle
+
+[source,bash]
+----
+docker ps
+docker ps -a
+docker ps --no-trunc
+docker run -it --rm --name my-ubuntu ubuntu
+docker attach my-ubuntu # wenn man eine interaktive shell schließt, kann man wieder darauf connecten
+docker container list
+docker container ls
+docker container ls -a
+docker rm <container-id>
+docker rm my-ubuntu
+docker rm -f my-ubuntu # löscht einen laufenden Container
+docker top
+docker run -d --name my-timer ubuntu /bin/bash -c "while true; do date; sleep 1; done"
+docker inspect network
+----
+
+
+=== Windows Container
+
+* Sind groß
+* instabil
+* langsam
+
+TIP: In der Schule nicht empfohlen
+
+
+
+=== docker events
+
+[source,bash]
+----
+docker events
+----
+
+=== Reverse Proxy
+
+http://github.com/nginx-proxy/nginx-proxy
+
+=== Übungen
+
+https://github.com/rstropek/DockerVS2015Intro/tree/master/dockerDemos/labs/010-manage-docker-containers
+
+
+[source,bash]
+----
+docker run -d -p 8080:80 nginx:alpine
+----
+
+http://localhost:8080/
+
+http://hub.docker.com/_/nginx
+
+
+[source,bash]
+----
+docker run -d -p 8080:80 --name my-nginx nginx # <.>
+docker exec -it my-nginx /bin/bash # <.>
+cd /usr/share/nginx/html # <.>
+ls -l
+echo hello world > index.html
+cat index.html
+----
+
+<.> starten des Servers -> http://localhost:8080
+<.> Zugriff auf Shell des Containers
+<.> in /usr/share/nginx/html liegen die statischen Dokumente
+
+http://localhost:8080
+
+== Docker Networking
+
+=== Access Containers from inside Docker Network
+
+image:bridge_network.png[]
+image:network_access.png[]
+
+* bridge: Standard-Network
+* none: kein Netzwerk
+* host: hängt im Netzwerk des hosts
+
+[source,bash]
+----
+# Terminal 1
+docker run -d -p 8080:80 --name my-nginx nginx
+# Terminal 2
+docker run -it --rm --name my-ubuntu ubuntu
+# Terminal 3
+docker inspect my-ubuntu
+docker inspect my-nginx
+----
+
+Install curl in Terminal 3 and access nginx with name (doesn't work) and internal ip (works)
+
+=== Create Docker Network
+
+[source,bash]
+----
+docker network create -d bridge my-isolated-net
+docker inspect my-isolated-net
+----
+
+.Vergeben eines links
+[source,bash]
+----
+# Terminal 1
+docker run -d -p 8080:80 --net=my-isolated-net --name webserver nginx:alpine
+# Terminal 2
+docker run -it --rm --net=my-isolated-net --name my-ubuntu --link webserver:myserver ubuntu
+# Terminal 3
+docker inspect webserver
+docker inspect my-ubuntu
+apt-get update
+apt-get install curl
+curl webserver # shows index.html
+----
+
+.Im Host-Netzwerk laufen lassen
+[source,bash]
+----
+docker run -d --net=host ubuntu
+----
+
+
+== docker-compose
+
+* `docker run ...` kann lang und unübersichtlich werden
+* in `docker-compose.yml` kann der Aufruf sauber durchgeführt werden
+* Aufruf mit `docker-compose up`
+
+== Lab: Postgre-sql
+
+https://github.com/rstropek/DockerVS2015Intro/tree/master/dockerDemos/labs/020-docker-networking
+
+image:pg-admin.png[]
+
+[source,yaml]
+----
+version: "3.8"
+services:
+  pg-db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: secret
+
+  pg-admin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@demo.com
+      PGADMIN_DEFAULT_PASSWORD: secret
+      PGADMIN_LISTEN_PORT: 80
+    ports:
+      - "8080:80"
+    links:
+      - "pg-db:pg-db"
+----
+
+=== Minecraft Übung mit Docker
+
+Minecraft Server in Docker mit verschiedenen Konfigurationen hochfahren
+
+https://linz.coderdojo.net/uebungsanleitungen/programmieren/minecraft/server/scriptcraft-installieren/
+
+
+=== Volume Demo
+
+----
+docker run --rm \
+    -v ${PWD}/website:/usr/share/nginx/html:ro \
+    -p 8080:80 \
+    --name webserver \
+    nginx:alpine
+----
+
+* Im Produktivbetrieb ist immer eine Versionsnummer für das Image anzugeben
+
+IMPORTANT: Semantische Versionierung:  https://semver.org/lang/de/
+
+
+
