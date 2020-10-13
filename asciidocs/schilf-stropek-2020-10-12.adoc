@@ -1,6 +1,6 @@
 = Docker Weiterbildung - Rainer Stropek
 Thomas W. Stütz <t.stuetz@htl-leonding.ac.at>
-2020-10-12, Mitschrift der schulinternen Weiterbildung 12.-13.Oktober 2020
+1.0.0,2020-10-12, Mitschrift der schulinternen Weiterbildung 12.-13.Oktober 2020
 :revnumber: {project-version}
 :example-caption!:
 ifndef::imagesdir[:imagesdir: images]
@@ -48,7 +48,7 @@ image:vm.png[width=300]
 ** Portabel
 ** Immutable
 *** Server werden nicht mehr gepatcht
-**** Analogie: Hauskatze vs 3 Kühe in Stall eines bäuerlichen Betriebs
+**** Analogie: Hauskatze vs Kühe in Stall eines bäuerlichen Betriebs
 
 * Windows-Subsystem
 ** (Vollwertiger) Kernel, der auch auf Windows zugreifen kann
@@ -115,7 +115,13 @@ docker run -it --rm ubuntu # <.> <.>
 
 IMPORTANT: Achte auf die Geschwindigkeit (beim Start) des Docker Containers
 
+.VSC-plugin
+image:vsc-docker-plugin.png[]
+
 TIP: Tool im VSC -> Remote Development
+
+.VSC-remote-plugin
+image:vsc-docker-remote-plugin.png[]
 
 * Den Docker Container im VSC links oben mit rechter Maustaste anklicken
 * `Attach to Container` anklicken
@@ -152,6 +158,8 @@ docker ps
 ----
 
 IMPORTANT: Diese Lösung NIE, NIE, NIE ungeschützt im Internet verwenden
+https://docs.docker.com/engine/security/https/
+
 
 * Man braucht dann die Docker-Client-Tools
 ** nur downloaden und entpacken
@@ -294,6 +302,10 @@ docker run -d --net=host ubuntu
 
 https://github.com/rstropek/DockerVS2015Intro/tree/master/dockerDemos/labs/020-docker-networking
 
+.Login bei pg-admin
+image:pg-admin-login.png[]
+
+. Die erstellte Tabelle in pg-admin
 image:pg-admin.png[]
 
 [source,yaml]
@@ -334,9 +346,558 @@ docker run --rm \
     nginx:alpine
 ----
 
+* Windows-Volumes können in einen Linux Docker grundsätzlich gemounted werden
+** für Text- und Konfigurationsdateien
+** jedoch nicht für Datenbankdateien
+
 * Im Produktivbetrieb ist immer eine Versionsnummer für das Image anzugeben
 
 IMPORTANT: Semantische Versionierung:  https://semver.org/lang/de/
+
+.app.ts
+[source,javascript]
+----
+const greetingParagraph = document.getElementById('greeting') as HTMLParagraphElement;
+
+greetingParagraph.innerText = "Hello Docker";
+----
+
+
+.Dieser Container kompiliert den ts-code
+[source,bash]
+----
+docker run --rm \
+       -d \
+       -v ${PWD}:/app \
+       -w /app \
+       node:alpine npx tsc --watch
+----
+
+.Dieser Container zeigt
+#[source,bash]
+----
+docker run --rm \
+       -v ${PWD}:/app \
+       -w /app \
+       -p 3000:3000 -p 3001:3001
+       node:alpine npx browser-sync start --server --watch
+----
+
+* `-v` - Syntax ist veraltet, jetzt `--mount`
+
+
+== Lab 030 - Docker Volumes
+
+https://github.com/rstropek/DockerVS2015Intro/tree/master/dockerDemos/labs/030-docker-volumes
+
+[source,bash]
+----
+docker run -d \
+           -e POSTGRES_PASSWORD=secret \
+           -e PGDATA=/pgdata \
+           --net pg-net \
+           -v ${PWD}/pgdata:/pgdata \
+           --name pg-db postgres
+----
+
+
+.Create a Docker Volume
+[source,bash]
+----
+docker volume create dbstore
+----
+
+[source,bash]
+----
+docker run -d \
+           -e POSTGRES_PASSWORD=secret \
+           -e PGDATA=/dbdata \
+           --mount 'type=volume,src=dbstore,dst=/dbdata' \
+           --name pg-db \
+           postgres
+----
+
+[source,bash]
+----
+docker run --rm \
+           --mount 'type=volume,src=dbstore,dst=/dbdata' \
+           -w /dbdata ubuntu /bin/bash -c "ls -la"
+----
+
+----
+docker run --rm \
+           --mount 'type=volume,src=dbstore,dst=/dbdata' \
+             --mount 'type=bind,src=/home/rainer/backup,dst=/backup' \
+	         ubuntu tar cvf /backup/backup.tar /dbdata
+           -w /dbdata ubuntu /bin/bash -c "ls -la"
+----
+
+.Backup the files from the storage
+----
+docker run --rm \
+  --mount 'type=volume,src=dbstore,dst=/dbdata' \
+  --mount 'type=bind,src=/tmp/backup,dst=/backup' \
+	ubuntu tar cvf /backup/backup.tar /dbdata
+
+ls –la /tmp/backup/
+----
+
+In MacOS the source-binding-folder is supposed to have write-permission and must therefore be listed in Docker FILE SHARING
+
+image:docker-folders-with-write-permission.png[]
+
+
+
+== Docker Images
+
+.Source: https://devopedia.org/docker
+image:docker-layers.png[]
+
+.Source: https://devopedia.org/docker
+image:docker-architecture.png[]
+
+Ein Docker Image ist wie eine Klasse:
+
+* es ist wie ein Muster, eine Vorlage
+* mit einem Image alleine kann man nichts anfangen
+* von einem Image können *mehrere* Container erstellt werden
+* Ein Image verbraucht keine CPU-Zeit, da es nicht läuft
+
+
+[source,bash]
+----
+docker images
+docker run -it ubuntu  # <.>
+echo hallo > greet.txt
+exit
+docker ps -a # <.>
+----
+<.> Ein Container wird erstellt
+<.> man sieht der Container ist gestoppt
+
+
+=== Docker Commit
+
+CAUTION: wird in der Praxis nicht/kaum verwendet, nur hier zu Demonstrationszwecken
+
+[source,bash]
+----
+docker commit <hex> ubuntu-with-greeting
+docker images
+docker history ubuntu-with-greeting:latest
+docker run -it --rm ubuntu-with-greeting
+----
+
+.docker history ubuntu-with-greeting:latest
+----
+IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
+5cc3b3847f03        2 minutes ago       /bin/bash                                       34B
+9140108b62dc        2 weeks ago         /bin/sh -c #(nop)  CMD ["/bin/bash"]            0B
+<missing>           2 weeks ago         /bin/sh -c mkdir -p /run/systemd && echo 'do…   7B
+<missing>           2 weeks ago         /bin/sh -c [ -z "$(apt-get indextargets)" ]     0B
+<missing>           2 weeks ago         /bin/sh -c set -xe   && echo '#!/bin/sh' > /…   811B
+<missing>           2 weeks ago         /bin/sh -c #(nop) ADD file:da80f59399481ffc3…   72.9MB
+----
+
+* Docker ist in Zwiebelschichten aufgebaut
+* Man kann zusätzliche Funktionalität hinzufügen
+** zB Base Image mit Puppeteer (headless chrome) anreichern
+* eigene Images für Testen usw erstellen
+
+=== Dockerfile
+
+* Dockerfile ist eigentlich eine eigene "Programmiersprache"
+(nicht wirklich, sondern eine deklarative Sprache ohne Schleifen usw.)
+
+
+==== Lab
+
+* Create folder
+
+----
+mkdir hello-dockerfile
+cd hello-dockerfile
+----
+
+* Open in your IDE and create a file named `Dockerfile`
+
+----
+FROM ubuntu
+RUN echo Hallo > greet.txt
+----
+
+* Start the build
+
+----
+docker build -t ubuntu-from-dockerfile .
+----
+
+.output
+----
+Sending build context to Docker daemon   7.68kB
+Step 1/2 : FROM ubuntu
+ ---> 9140108b62dc
+Step 2/2 : RUN echo Hallo > greet.txt
+ ---> Running in 686d0f7bd479
+Removing intermediate container 686d0f7bd479
+ ---> de4bd9e4a79a
+Successfully built de4bd9e4a79a
+Successfully tagged ubuntu-from-dockerfile:latest
+----
+
+CAUTION: Dockerfile commands are easy cheesy (RUN, ...), but the shell-scripts are often complicated
+
+* Jedes RUN ist eine "Zwiebelschicht"
+
+=== Häufigste Befehle
+
+* FROM
+* RUN um Shell Scripts zu starten
+* COPY
+
+==== COPY
+
+Create a file `greet2.txt` in yout local folder
+
+----
+FROM ubuntu
+RUN echo Hallo > greet.txt
+COPY *.txt /
+----
+
+* mit COPY kann man aus dem Verzeichnis in dem das Dockerfile liegt,
+Dateien in das Image kopieren
+* mit einem Parameter kann dieses Verzeichnis geändert werden
+
+.kontrollieren mit
+----
+docker run --rm ubuntu-from-dockerfile cat /hello2.txt
+----
+
+
+.Bei 2-maligen ausführen wird der Cache verwendet
+----
+Sending build context to Docker daemon  11.78kB
+Step 1/3 : FROM ubuntu
+ ---> 9140108b62dc
+Step 2/3 : RUN echo Hallo > greet.txt
+ ---> Using cache
+ ---> de4bd9e4a79a
+Step 3/3 : COPY hello2.txt /
+ ---> Using cache
+ ---> dfcea995e3ed
+Successfully built dfcea995e3ed
+Successfully tagged ubuntu-from-dockerfile:latest
+----
+
+* Durch gezieltes Erstellen mehrerer RUN-Statements kann man
+
+* Mit .dockerignore können Dateien ausgeschlossen werden, dh sie werden mit COPY nicht übertragen
+
+----
+FROM ubuntu
+RUN apt-get update
+RUN echo Hallo > greet.txt
+WORKDIR app2
+COPY *.txt .
+----
+
+* Problem: Hier würde er bei einem apt-get update das gecachte Image verwenden.
+* Workaround 1 (dirty): verwende ENV Variable
+
+----
+FROM ubuntu
+ENV date='2020-10-13'
+RUN apt-get update
+RUN echo Hallo > greet.txt
+WORKDIR app2
+COPY *.txt .
+----
+
+* Workaround 2: Cache löschen
+
+----
+docker build -t ubuntu-from-dockerfile . --no-cache
+----
+
+* --build-arg: Parameter für Dockerfile
+
+==== CMD
+
+* Ist jenes Statement, welches ausgeführt wird, wenn der Container gestartet wird
+
+zB CMD ["/bin/bash"]
+
+* Das Command wird erst beim Start des Containers ausgeführt, nicht beim Build des Images
+
+==== ENTRYPOINT
+
+* Ist jenes Programm, das grundsätzlich ausgeführt
+* Kann durch CMD ergänzt werden
+* https://docs.docker.com/engine/reference/builder/#cmd
+
+----
+ENTRYPOINT ...
+CMD ...
+----
+
+==== ARG und ENV
+
+* ARG gilt nur für Build-zeitpunkt im Dockerfile
+* ENV ist Environment Variable und gilt dann auch om Docker Container
+
+
+== Lab 040 - nodejs
+https://github.com/rstropek/DockerVS2015Intro/tree/master/dockerDemos/labs/040-dockerfile-node
+
+----
+mkdir docker-node-express
+docker run --rm -v ${PWD}:/app -w /app node npm init -y
+docker run --rm -v ${PWD}:/app -w /app node npm install express hbs # <.>
+docker run --rm -v ${PWD}:/app -w /app node npm install -D @types/express copyfiles typescript
+docker run --rm -v ${PWD}:/app -w /app node npx tsc --init
+----
+
+<.> install express und handlebar https://handlebarsjs.com/
+
+https://www.toptal.com/developers/gitignore
+
+.gitignore
+----
+node_modules/
+dist/
+----
+
+----
+docker run --rm -v ${PWD}:/app -w /app node npm run build
+docker run --rm -v ${PWD}:/app -p 8080:8080 -w /app node npm start
+----
+
+image:040-result1-browser.png[]
+
+* Dockerfile muss nicht im build-Context enthalten sein
+* .dockerignore muss nicht im build-Context enthalten sein
+
+.Dockerfile
+----
+FROM node
+WORKDIR /app
+COPY . .
+RUN npm install && npm run build
+----
+
+----
+docker build -t myexpress .
+----
+
+* es gibt kein volume mounting , die app ist bereits hineingebacken
+* Kritikpunkte
+** der gesamte Ordner wird mit `COPY . .` in das Image kompileiert
+** der gesamte typescript-Ordner ist im Image drinnen
+
+* -> Daher wird der build-Prozess in mehrere Teile zerteilt
+
+=== Multi-Stage-Build
+
+.Dockerfile
+----
+FROM node AS BUILDER
+WORKDIR /app
+COPY . .
+RUN npm install && npm run build
+
+# <.>
+
+FROM node:alpine
+WORKDIR /app
+COPY --from=builder /app/dist . # <.>
+COPY --from=builder /app/package.json . # <.>
+RUN npm install --only-prod
+EXPOSE 8080 # <.>
+CMD ["node","app.js"]
+----
+
+<.> hier könnte ein Image mit meinen Unit-Tests sein
+<.> aus dem builder-image werden die Ergebnisse kopiert
+<.> zu Dokumentationszwecken wird der Port angegeben
+
+* Multi-Stage wird immer dann durchgeführt, wenn es eine build-pipeline gibt
+* Bei Verwendung eines Automationsservers (Jenkins, travis, ...) wird oft kein multi-staging verwendet
+
+.build the image
+----
+docker build -t myexpress .
+----
+or
+----
+docker build -t myexpress . --no-cache
+----
+
+.look at the size of the images
+----
+docker images
+----
+
+.run the image
+----
+docker run -d -p 8080:8080 myexpress
+----
+
+
+=== ASP.NET Core in Docker
+
+https://docs.docker.com/engine/examples/dotnetcore/
+
+=== Upload to Docker Registry (Docker Hub)
+
+----
+docker tag myexpress htlleonding/myexpress
+----
+
+----
+docker images
+----
+
+.Ein Tag wurde erstellt, zeigt aber auf das bestehende Image
+----
+REPOSITORY                                    TAG                 IMAGE ID            CREATED             SIZE
+htlleonding/myexpress                         latest              42fb7a80c3ed        About an hour ago   201MB
+myexpress                                     latest              42fb7a80c3ed        About an hour ago   201MB
+....
+----
+
+----
+docker login
+----
+
+----
+docker push htlleonding/myexpress
+----
+
+=== Deployment to Azure
+
+* Resource Groups -> docker-seminar
+* Add "Web App"
+* In Marketplace choose "Web App for Containers"
+* Create
+** name: docker-seminar-xxx
+** Region: West Europe
+** Sku and size: Free F1
+** image: htlleonding/myexpress
+
+
+
+== Lab - Reverse Proxy
+
+https://github.com/rstropek/DockerVS2015Intro/tree/master/dockerDemos/labs/060-reverse-proxy
+
+.Source: Rainer Stropek
+image:060-lab-architecture.png[]
+
+* Die Verwendung eines API Gateways verhindert Probleme mit CORS (Cross-Origin-Resource-Sharing)
+
+http://www.software-architects.com/devblog/2019/04/tiny-docker-image
+
+.docker-compose.yml
+[source,yaml]
+----
+version: "3.8"
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8081:80"
+    networks:
+      - mynet
+  frontend:
+    build: ./frontend
+    networks:
+      - mynet
+  proxy:
+    build: ./proxy
+    networks:
+      - mynet
+    ports:
+      - "8080:80"
+networks:
+  mynet:
+    driver: bridge
+----
+
+.nginx configuration (Reverse Proxy)
+----
+events {
+}
+http {
+    upstream ui {
+        server frontend;
+    }
+    upstream api {
+        server backend;
+    }
+
+    server {
+        listen 80;
+
+        location /api {
+            proxy_pass http://api;
+        }
+        location / {
+            proxy_pass http://ui;
+        }
+    }
+}
+----
+
+== Distributed Application Runtime
+
+https://dapr.io/
+
+
+u.a. von MS initiiert
+
+
+== Lab Hugo
+
+https://github.com/rstropek/DockerVS2015Intro/tree/master/dockerDemos/labs/050-dockerfile-hugo
+
+https://github.com/rstropek/git-fundamentals-basic-hugo-website
+
+=== Variante 1: Register GitHub-Repo in Docker-Hub
+
+image:050-docker-github-registration.png[]
+
+=== Variante 2: Use GitHub Actions
+
+https://github.com/marketplace/actions/build-and-push-docker-images
+
+* create <project-root>/github/workflow/
+* in github secrets erstellen
+** Settings - Secrets
+** DOCKERHUB_USERNAME
+** DOCKERHUB_TOKEN
+
+
+to be continued ...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
