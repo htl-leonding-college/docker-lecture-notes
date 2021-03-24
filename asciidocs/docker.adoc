@@ -75,7 +75,7 @@ image -right-> container : docker run
 == Leichtgewichtige Virtualisierung
 
 .Virtualisierung
-[plantuml,virt,png]
+[plantuml,virt1,png]
 ----
 @startuml
 
@@ -97,7 +97,7 @@ Hardware
 ----
 
 .Leichtgewichtige Virtualisierung
-[plantuml,lightweightvirt,png]
+[plantuml,virt2,png]
 ----
 rectangle docker [
 myApp

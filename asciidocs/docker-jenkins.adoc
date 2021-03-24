@@ -50,7 +50,7 @@ image -right-> container : docker run
 == Leichtgewichtige Virtualisierung
 
 .Virtualisierung
-[plantuml,virt2,png]
+[plantuml,virt3,png]
 ----
 @startuml
 
