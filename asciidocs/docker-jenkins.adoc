@@ -49,7 +49,8 @@ image -right-> container : docker run
 
 == Leichtgewichtige Virtualisierung
 
-[plantuml,virt,png]
+.Virtualisierung
+[plantuml,virt2,png]
 ----
 @startuml
 
@@ -74,6 +75,7 @@ Host OS
 ]
 @enduml
 ----
+
 
 == Grundprinzip
 
