@@ -1,0 +1,51 @@
+= docker-compose
+Thomas W. Stütz
+1.0.0, 2021-03-24: How to use docker-compose in project work @ HTL Leonding college
+ifndef::imagesdir[:imagesdir: images]
+//:toc-placement!:  // prevents the generation of the doc at this position, so it can be printed afterwards
+:sourcedir: ../src/main/java
+:icons: font
+:sectnums:    // Nummerierung der Überschriften / section numbering
+:toc: left
+:toclevels: 5
+:experimental: true
+:linkattrs:   // so window="_blank" will be executed
+
+//Need this blank line after ifdef, don't know why...
+ifdef::backend-html5[]
+
+// https://fontawesome.com/v4.7.0/icons/
+icon:file-text-o[link=https://raw.githubusercontent.com/htl-leonding-college/security-lecture-notes/master/asciidocs/{docname}.adoc] ‏ ‏ ‎
+icon:github-square[link=https://github.com/htl-leonding-college/security-lecture-notes] ‏ ‏ ‎
+icon:home[link=http://edufs.edu.htl-leonding.ac.at/~t.stuetz/hugo/2021/01/technology-notes/]
+endif::backend-html5[]
+
+// print the toc here (not at the default position)
+//toc::[]
+
+//image:maintenance_640.jpg[link="https://pixabay.com/illustrations/maintenance-under-construction-2422172/", width=60%, window="_blank"]
+
+image:under-construction-640.png[link="https://pixabay.com/illustrations/under-construction-construction-sign-2408062/", width=60%, window="_blank"]
+
+//image:sign-work-in-progress.png[link="https://pixabay.com/vectors/work-under-construction-98936/", width=60%, window="_blank"]
+
+This page is still under construction
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

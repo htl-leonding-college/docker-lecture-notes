@@ -1,13 +1,39 @@
-= Docker & Jenkins
-Thomas W. Stütz <t.stuetz@htl-leonding.ac.at>
-2020-02-20
-:revnumber: {project-version}
-:example-caption!:
+= Docker
+Thomas W. Stütz, credits to Mr. Christian Aberger
+1.0.0, 2021-03-17: How to use github-actions in project work @ HTL Leonding college
 ifndef::imagesdir[:imagesdir: images]
-ifndef::sourcedir[:sourcedir: ../../main/java]
+//:toc-placement!:  // prevents the generation of the doc at this position, so it can be printed afterwards
+:sourcedir: ../src/main/java
 :icons: font
+:sectnums:    // Nummerierung der Überschriften / section numbering
 :toc: left
-:sectnums:
+:toclevels: 5
+:experimental: true
+:linkattrs:   // so window="_blank" will be executed
+
+//Need this blank line after ifdef, don't know why...
+ifdef::backend-html5[]
+
+// https://fontawesome.com/v4.7.0/icons/
+icon:file-text-o[link=https://raw.githubusercontent.com/htl-leonding-college/security-lecture-notes/master/asciidocs/{docname}.adoc] ‏ ‏ ‎
+icon:github-square[link=https://github.com/htl-leonding-college/security-lecture-notes] ‏ ‏ ‎
+icon:home[link=http://edufs.edu.htl-leonding.ac.at/~t.stuetz/hugo/2021/01/technology-notes/]
+endif::backend-html5[]
+
+// print the toc here (not at the default position)
+//toc::[]
+
+//image:maintenance_640.jpg[link="https://pixabay.com/illustrations/maintenance-under-construction-2422172/", width=60%, window="_blank"]
+
+image:under-construction-640.png[link="https://pixabay.com/illustrations/under-construction-construction-sign-2408062/", width=60%, window="_blank"]
+
+//image:sign-work-in-progress.png[link="https://pixabay.com/vectors/work-under-construction-98936/", width=60%, window="_blank"]
+
+This page is still under construction
+
+
+<<create-quarkus-app.adoc#,Create a Quarkus Application>>
+
 
 == Was ist Docker?
 
@@ -17,7 +43,6 @@ einzelnen, leicht zu transportierenden Container zu packen.
 * Wird eine Applikation in einen Docker-Container gepackt, so ist sichergestellt,
 dass die Laufzeitumgebung unverändert bleibt, auch wenn der container auf einem
 anderen Hostsystem läuft.
-
 
 
 == Wie funktioniert Docker?
@@ -49,6 +74,7 @@ image -right-> container : docker run
 
 == Leichtgewichtige Virtualisierung
 
+.Virtualisierung
 [plantuml,virt,png]
 ----
 @startuml
@@ -56,13 +82,23 @@ image -right-> container : docker run
 rectangle fatvirt [
 myApp
 ---
+Libraries
+---
 Guest OS
+---
+Hardware Emulation
 ---
 VirtualBox / vmware ...
 ---
 Host OS
+---
+Hardware
 ]
+----
 
+.Leichtgewichtige Virtualisierung
+[plantuml,lightweightvirt,png]
+----
 rectangle docker [
 myApp
 ---
@@ -71,6 +107,8 @@ Libraries
 Docker
 ---
 Host OS
+---
+Hardware
 ]
 @enduml
 ----
@@ -120,18 +158,13 @@ Server: Docker Engine - Community
 sudo usermod -a -G docker jenkins
 ----
 
-== Docker Networks
 
-* Konfiguriert die Verbindung zwischen Container und zum Internet
-* Container können ports freigeben und so im Internet verfügbar machen
-* Man verwendet die *Docker CLI*
-* Network Drivers
-** *Bridge*: Virtuelles Netzwerk, um mehrere Container miteinander zu verbinden
-** *Host*: Entfernt die NEtzwerk-Isolation zwischen Host und Containern. Die Container benutzen
-das Netzwerk des Hosts direkt
-** *Overlay*: Verbindet Container die auf unterschiedlichen Docker-Hosts laufen
-** *Macvlan*: Weist eine MAC-Adresse einem Container zu. Für low-level Netzwerkanforderungen
-** *None*: Deaktiviert das Netzwerk zwischen den Containern
+== Docker Registries
+
+* a remote repository for storing Docker images
+* public or private
+* self-hosted or third-party service
+* ie Docker Hub, Quay.io
 
 == Bind Mounts and Volumes
 
@@ -143,12 +176,6 @@ das Netzwerk des Hosts direkt
 
 * Volumes verfügen über mehr Features wie *Cloud Storage Backends*
 
-== Docker Registries
-
-* a remote repository for storing Docker images
-* public or private
-* self-hosted or third-party service
-* ie Docker Hub, Quay.io
 
 == Erste Beispiele mit Docker
 
@@ -226,640 +253,20 @@ docker run --ulimit memlock=-1:-1 \
 Softwareprodukt ein eigener Docker-Container erstellt
 
 
-== Starten einer Jenkins-Instanz in Docker
+== Docker Networks
+
+* Konfiguriert die Verbindung zwischen Container und zum Internet
+* Container können ports freigeben und so im Internet verfügbar machen
+* Man verwendet die *Docker CLI*
+* Network Drivers
+** *Bridge*: Virtuelles Netzwerk, um mehrere Container miteinander zu verbinden
+** *Host*: Entfernt die Netzwerk-Isolation zwischen Host und Containern. Die Container benutzen
+das Netzwerk des Hosts direkt
+** *Overlay*: Verbindet Container die auf unterschiedlichen Docker-Hosts laufen
+** *Macvlan*: Weist eine MAC-Adresse einem Container zu. Für low-level Netzwerkanforderungen
+** *None*: Deaktiviert das Netzwerk zwischen den Containern
 
-----
-docker run -it \
-           --rm \
-           -v /var/run/docker.sock:/var/run/docker.sock \
-           -v ${PWD}/jenkins-data:/var/jenkins_home \
-           -p 8080:8080 \
-           --name local-jenkins \
-           getintodevops/jenkins-withdocker:lts-docker19.03.5
-----
 
-////
-== Remove Docker-Volumes
-
- docker system prune --volumes
-
-source: https://linuxize.com/post/how-to-remove-docker-images-containers-volumes-and-networks/
-////
-
-
-////
-== screen-Terminal
-
- screen ~/Library/Containers/com.docker.docker/Data/vms/0/tty
-
-Aussteigen mit Ctrl-a Ctrl-d
-
-////
-
-.root-password
-image:jenkins-0010-root-password.png[]
-
-image:jenkins-0020-unlock-jenkins.png[]
-
-image::jenkins-0030-install-suggested-plugins.png[]
-
-image:jenkins-0040-create-suggested-plugins.png[]
-
-image:jenkins-0050-create-first-admin-user.png[]
-
-image:jenkins-0060-instance-configuration.png[]
-
-image:jenkins-0070-jenkins-is-ready.png[]
-
-image:jenkins-0080-dashboard.png[]
-
-image:jenkins-0090-dashboard-people.png[]
-
-image:jenkins-0100-people-configure.png[]
-
-image:jenkins-0110-change-password.png[]
-
-
-
-
-
-
-== Dockerfile
-
-[source,docker]
-----
-FROM jenkins/jenkins:lts
-MAINTAINER miiro@getintodevops.com
-USER root
-
-# Install the latest Docker CE binaries
-RUN apt-get update && \
-    apt-get -y install apt-transport-https \
-      ca-certificates \
-      curl \
-      gnupg2 \
-      software-properties-common && \
-    curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg > /tmp/dkey; apt-key add /tmp/dkey && \
-    add-apt-repository \
-      "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") \
-      $(lsb_release -cs) \
-      stable" && \
-   apt-get update && \
-   apt-get -y install docker-ce
-----
-
-source: https://getintodevops.com/blog/the-simple-way-to-run-docker-in-docker-for-ci[The simple way to run Docker-in-Docker for CI]
-
-
-////
-== Add User to Dockergroup
-
- sudo usermod -a -G <group> <user>
-
--a ... append +
--G ... group
-
- sudo usermod -a -G docker ubuntu
-
-////
-
-== Does Docker work
-
-----
-node {
-    docker.image('alpine:latest').inside {
-        sh 'echo Hello World!'
-    }
-}
-----
-
-----
-pipeline {
-   agent any
-   stages {
-      stage('Hello') {
-         steps {
-            echo 'Hello World'
-         }
-      }
-   }
-}
-----
-
-== Assignment
-
-This assignment is complete when you have configured a Jenkins job that triggers automatically every 10 minutes,
-and prints the text "Hello World" in the console output.
-
-=== Solution
-
-There are many possible solutions for this task:
-
-1. Create pipeline job
-
-2. Build Triggers  - Build Periodically - Schedule: H/10 * * * *
-+
-Jenkins uses a cron expression, and the different fields are:
-
-* MINUTES Minutes in one hour (0-59)
-* HOURS Hours in one day (0-23)
-* DAYMONTH Day in a month (1-31)
-* MONTH Month in a year (1-12)
-* DAYWEEK Day of the week (0-7) where 0 and 7 are sunday
-
- The H option enables Jenkins to pick a random minute for running the job, avoiding load spikes.
-
-=== Pipeline script
-
-example hello world from jenkins
-
-----
-pipeline {
-   agent any
-   stages {
-      stage('Hello') {
-         steps {
-            echo 'Hello World'
-         }
-      }
-   }
-}
-----
-
-=== Pipeline script
-with docker
-
-----
-node {
-    docker.image('alpine:latest').inside {
-        sh 'echo Hello World!'
-    }
-}
-----
-
-////
-1. Describe your solution, including at least the job type, build steps or stages, automatic triggering logic and schedule, any commands / code used
-
-Option 1: Jenkins Freestyle job
-
-The assignment can be completed with a Jenkins Freestyle job.
-
-    Set Build periodically in the Build triggers section, setting schedule to H/10 * * * *  to trigger the job automatically every 10 minutes. The H option enables Jenkins to pick a random minute for running the job, avoiding load spikes.
-
-    Add Execute Shell build step in the Build section. As the shell command, enter echo "Hello World" to output the desired string in the console output of this job.
-
-
-Option 2: Jenkins Pipeline job
-
-The assignment can be completed with a Jenkins Pipeline job.
-
-    Set Build periodically in the Build triggers section, setting schedule to H/10 * * * *  to trigger the job automatically every 10 minutes. The H option enables Jenkins to pick a random minute for running the job, avoiding load spikes.
-
-    Configure a Pipeline using either an in-repository or inline Jenkinsfile pipeline definition:
-
-    node {
-      stage('Output') {
-        sh 'echo "Hello World"'
-      }
-    }
-
-
-The Freestyle job type is suitable for a simple job like this, but practicing the use of a Jenkins Pipeline is beneficial, because that's the job type we'll be using throughout this course.
-
-////
-
-
-=== maybe the best solution
-
-[source,bash]
-----
-pipeline {
-  agent any
-  triggers {
-        cron('H/10 * * * *')
-    }
-  stages {
-    stage('Print 10 times') {
-    steps {
-        sh '''#!/bin/bash
-        set -ex
-        echo "Hello world"
-        ''' }
-      }
-  }
-}
-----
-
-
-[%notitle]
-=== Musterlösung
-
-image::jenkins-23-assignment-hello-world.png[background, size=cover]
-
-
-== Build a pipeline with Jenkins
-
-=== Jenkins
-
-* Automation Server mostly used for CI and CD pipelines
-* Pipelines as code
-* Pipelines werden mittels *Jenkinsfiles* deklariert
-* Java
-
-=== Komponenten
-
-* *Job* oder *project*
-* *Master* hosted das Jenkins user-interface
-* *Agent* kann auf unterschiedlichen Server laufen. Sind optional.
-* *Executor* ist ein Slot in dem ein Job läuft. Sowohl Masters als auch Agents können Executors haben.
-
-=== Job Types
-
-* Freestyle
-* Pipeline
-* Multibranch Pipeline
-* GitHub Organisation Job
-
-=== Jenkinsfile
-
-* Text file definert einen Jenkins Pipeline Job
-* Deklarativ (einfach) oder gescripted (mehr Möglichkeiten, Groovy)
-* Stages für unterschiedliche Teile der Pipeline: build, test, deploy, ...
-* werden im Git-Repository gespeichert
-
-=== Overview
-
-[plantuml,verview-pipeline,png]
-----
-@startuml
-agent "Trigger:\n**Code changed in Git**\n**repository**" as trigger
-agent "Stage: \n**Build docker image**" as build
-agent "Stage: \n**Run tests**" as test
-agent "Stage: \n**Push image to**\n**docker hub**" as push
-trigger -> build
-build -> test
-test -> push
-@enduml
-----
-
-IMPORTANT: Man benötigt einen Account auf https://hub.docker.com
-
-=== Steps
-
-* Clonen des Vorlageprojekts
-* Kopieren des Templates, um ein eigenes Applikations-Repository zu erstellen
-* Erstellen eines GitHub-Repositories und pushen des Codes
-
-==== Clonen des Vorlageprojekts
-
-[source,bash]
-----
-git clone https://github.com/getintodevops/bestpractices-docker-jenkins.git
-----
-
-==== Kopieren des tatsächlichen Projekts
-
-[source,bash]
-----
-cp -r bestpractices-docker-jenkins/example-app .
-----
-
-==== Initialize Git-Repository
-
-[source,bash]
-----
-cd example-app
-git init
-----
-
-=== Create Git-Repository
-
-image:jenkins-0120-create-repository.png[]
-
-=== Connect local Repo to GitHub
-
-[source,bash]
-----
-git remote add origin https://github.com/htl-leonding/example-app.git
-----
-
-=== Commit Projekt
-
-[source,bash]
-----
-git add .
-git commit -m 'initial commit'
-git push origin master
-----
-
-== What is a Dockerfile for?
-
-* Define the source or base image
-* Define the list of actions to take on the base image
-* Tell Docker how to run the image
-
-=== Define the source or base image
-
-
-[source,docker]
-----
-FROM node:13.8.0
-----
-
-IMPORTANT: Pin exact versions instead of using :latest
-
-=== Define the list of actions
-
-Copy all files into Docker-container
-
-[source,docker]
-----
-FROM node:13.8.0
-COPY . .
-----
-
-IMPORTANT: Use COPY instead of ADD unless you specifically know you need to use ADD
-
-=== Further steps
-
-[source,docker]
-----
-FROM node:13.8.0
-COPY . .
-RUN npm install
-EXPOSE 8000
-CMD npm start
-----
-
-NOTE: EXPOSE is only for documentation
-
-=== Build an image
-
-[source,docker]
-----
-docker build -t example-app .
-----
-
-NOTE: Note the period
-
-== Jenkinsfile Basics
-
-image:jenkins-34-jenkinsfile-basics.png[]
-
-=== Create a Jenkinsfile
-
-----
-node {
-
-}
-----
-
-node means that all commands within run in an executor reserved for this job
-
-=== def app
-
-[source,groovy]
-----
-node {
-    def app
-}
-----
-
-Declares a variable called app. This variable will point to the docker image, we build later.
-
-=== stage
-
-[source,groovy]
-----
-node {
-    def app
-
-    stage('Clone repository') {
-
-    }
-}
-----
-
-The name will only be used for logfiles and visualization of the job
-
-=== The Complete Jenkins-File
-
-[source,groovy]
-----
-node {
-    def app
-
-    stage('Clone repository') {
-        checkout scm
-    }
-
-    stage('Build image') {
-        app = docker.build('htlleonding/example-app')
-    }
-
-    stage('Push image') {
-        docker.withRegistry('https://registry.hub.docker.com',
-                            'docker-hub-credentials') {
-            app.push('latest')
-        }
-    }
-}
-----
-
-|===
-| command | purpose
-
-|checkout scm
-|scm ... source code management. Der Sourcecode wird aus dem git-repo ausgecheckt.
-
-|===
-
-=== Add Files to Repo
-
-[source,shell]
-----
-git add Dockerfile Jenkinsfile
-git commit -m 'pipeline configuration'
-git push origin master
-----
-
-== Create a Jenkins Job
-
-In Jenkins
-
-* New Item
-* Item name: example-app
-* Item type: pipeline
-
-=== Build Trigger
-
-* Poll SCM
-* Schedule: H/5 * * * *
-
-=== Pipeline
-
-* Definition: Pipeline script from SCM
-** SCM: Git
-*** Repositories
-**** Repository URL: https://github.com/htl-leonding/example-app.git
-**** Credentials: - none -
-
-
-=== Add Credentials
-
-* Docker Home Page
-* Credentials
-** Stores scoped to Jenkins: (global)
-*** Add Credentials
-**** Kind: Username with password
-***** Scope: Global
-***** Username: xxxx
-***** Password: yyyy
-***** ID: docker-hub-credentials
-***** Description: Credentials for accessing docker hub.
-
-=== Copy a test-file
-
-[source,bash]
-----
-cp ../bestpractices-docker-jenkins/building-docker-images/test.js.example ./test.js
-----
-
-=== Test-file
-
-[source,javascript]
-----
-var assert = require('assert')
-
-function test() {
-  assert.equal(2 + 2, 4);
-}
-
-if (module == require.main) require('test').run(test);
-----
-
-=== Add stage to Jenkinsfile
-
-Add stage('Test') between stage('Build image') and stage('Push image')
-
-[source,groovy]
-----
-    stage('Test') {
-        app.inside {
-            sh 'npm test'
-        }
-    }
-----
-
-=== Commit and Push
-
-[source,bash]
-----
-git add Jenkinsfile test.js
-git commit -m 'add tests'
-git push origin master
-----
-
-Automatic build within 5 min
-
-[%notitle]
-=== Build - Unit-Tests
-
-image::jenkins-35-jenkinsfile-bsp-run-pipeline.png[background, size=cover]
-
-[%notitle]
-=== Build - Layers
-
-image::jenkins-36-jenkinsfile-bsp-run-pipeline.png[background, size=cover]
-
-== Jenkins Security
-
-image:jenkins-37-jenkinsfile-security.png[]
-
-=== Jenkins in private Network
-
-image:jenkins-38-jenkinsfile-security-vpn.png[]
-
-=== No Webhooks possible
-
-image:jenkins-39-jenkinsfile-security-vpn.png[]
-
-=== Workaround: Polling
-
-image:jenkins-40-jenkinsfile-security-vpn.png[]
-
-=== Firewall
-
-image:jenkins-41-jenkinsfile-security-firewall.png[]
-
-=== Polling is possible
-
-image:jenkins-42-jenkinsfile-security-firewall.png[]
-
-=== VPN
-
-image:jenkins-43-jenkinsfile-security-vpn.png[]
-
-=== Keep Jenkins and plugins up to date!
-
-=== Single Sign-On
-
-image:jenkins-44-jenkinsfile-security-single-sign-on.png[]
-
-You can use the github-authentication-plug. so the members of a github organiszation have access.
-
-
-== Managing Dependencies
-
-=== An Applications needs Node 10
-
-[plantuml,node10,png]
-----
-@startuml
-digraph foo {
-  node1 [shape=record, label = "{ Node 10 | Jenkins }"]
-}
-@enduml
-----
-
-=== Another Applications needs Node 13
-
-[plantuml,node13,png]
-----
-@startuml
-digraph foo1 {
-  node10 [shape=record, label = "{ Node 10 | Jenkins }"]
-  node13 [shape=record, label = "{ Node 13? | Jenkins }"]
-}
-@enduml
-----
-
-=== Jenkins Master-Slave
-
-[plantuml,masterslave,png]
-----
-@startuml
-digraph foo1 {
-  slave1 [shape=record, label = "{ Node 10 | Jenkins }"]
-  slave2 [shape=record, label = "{ Node 13 | Jenkins }"]
-  master [shape = rectangle, label = "Jenkins Master"]
-  master -> slave1
-  master -> slave2
-}
-@enduml
-----
-
-=== Puppet
-
-image:jenkins-45-jenkins-configure-dependency.png[]
-
-=== Problems
-
-image:jenkins-46-jenkins-slaves-problem.png[]
-
-=== Generic Docker Slaves
-
-image:jenkins-51-generic-docker-slaves.png[]
 
 
 

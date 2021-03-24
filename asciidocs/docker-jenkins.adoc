@@ -1,0 +1,869 @@
+= Docker & Jenkins
+Thomas W. Stütz <t.stuetz@htl-leonding.ac.at>
+2020-02-20
+:revnumber: 1.0.0
+:example-caption!:
+ifndef::imagesdir[:imagesdir: images]
+ifndef::sourcedir[:sourcedir: ../../main/java]
+:icons: font
+:toc: left
+:sectnums:
+
+== Was ist Docker?
+
+* Eine Technologie, um eine Application und alle ihre Abhängigkeiten in einen
+einzelnen, leicht zu transportierenden Container zu packen.
+
+* Wird eine Applikation in einen Docker-Container gepackt, so ist sichergestellt,
+dass die Laufzeitumgebung unverändert bleibt, auch wenn der container auf einem
+anderen Hostsystem läuft.
+
+
+
+== Wie funktioniert Docker?
+
+[plantuml,dockerbuild,png]
+----
+@startuml
+file dockerfile [
+
+  Dockerfile
+
+]
+artifact image [
+
+  docker
+  image
+
+]
+artifact container [
+
+  docker
+  container
+
+]
+dockerfile -right-> image : docker build
+image -right-> container : docker run
+@enduml
+----
+
+== Leichtgewichtige Virtualisierung
+
+[plantuml,virt,png]
+----
+@startuml
+
+rectangle fatvirt [
+myApp
+---
+Guest OS
+---
+VirtualBox / vmware ...
+---
+Host OS
+]
+
+rectangle docker [
+myApp
+---
+Libraries
+---
+Docker
+---
+Host OS
+]
+@enduml
+----
+
+== Grundprinzip
+
+* Dockerfile: Kochrezept zum Erstellen des Images
+* Image: Immutable Image
+* Container: Ein gestartetes Image (mutable)
+
+== Ist Docker installiert?
+
+ docker version
+
+----
+% docker version
+Client: Docker Engine - Community
+ Version:           19.03.5
+ API version:       1.40
+ Go version:        go1.12.12
+ Git commit:        633a0ea
+ Built:             Wed Nov 13 07:22:34 2019
+ OS/Arch:           darwin/amd64
+ Experimental:      false
+
+Server: Docker Engine - Community
+ Engine:
+  Version:          19.03.5
+  API version:      1.40 (minimum version 1.12)
+  Go version:       go1.12.12
+  Git commit:       633a0ea
+  Built:            Wed Nov 13 07:29:19 2019
+  OS/Arch:          linux/amd64
+  Experimental:     true
+ containerd:
+  Version:          v1.2.10
+  GitCommit:        b34a5c8af56e510852c35414db4c1f4fa6172339
+ runc:
+  Version:          1.0.0-rc8+dev
+  GitCommit:        3e425f80a8c931f88e6d94a8c831b9d5aa481657
+ docker-init:
+  Version:          0.18.0
+  GitCommit:        fec3683
+----
+
+----
+sudo usermod -a -G docker jenkins
+----
+
+== Docker Networks
+
+* Konfiguriert die Verbindung zwischen Container und zum Internet
+* Container können ports freigeben und so im Internet verfügbar machen
+* Man verwendet die *Docker CLI*
+* Network Drivers
+** *Bridge*: Virtuelles Netzwerk, um mehrere Container miteinander zu verbinden
+** *Host*: Entfernt die NEtzwerk-Isolation zwischen Host und Containern. Die Container benutzen
+das Netzwerk des Hosts direkt
+** *Overlay*: Verbindet Container die auf unterschiedlichen Docker-Hosts laufen
+** *Macvlan*: Weist eine MAC-Adresse einem Container zu. Für low-level Netzwerkanforderungen
+** *None*: Deaktiviert das Netzwerk zwischen den Containern
+
+== Bind Mounts and Volumes
+
+* *Bind Mounts* ein File oder Verzeichnis des Containers wird in einem File oder Verzeichnis zugänglich gemacht
+** docker run -v ${PWD}/directory-on-host:/directory-in-container
+* *Named Volumes* existieren am Host. Sie werden durch die Docker CLI manipuliert.
+** docker volume create my-volume
+** docker run -v my-volume:/directory-in-container
+
+* Volumes verfügen über mehr Features wie *Cloud Storage Backends*
+
+== Docker Registries
+
+* a remote repository for storing Docker images
+* public or private
+* self-hosted or third-party service
+* ie Docker Hub, Quay.io
+
+== Erste Beispiele mit Docker
+
+=== Image alpine ausführen
+
+----
+docker run alpine echo Hello 4xhif!
+----
+
+
+=== Image alpine interaktiv
+
+----
+docker run -it alpine /bin/sh
+----
+
+=== Ubuntu mit einem externen Volume
+----
+docker run -it --name syp_ubuntu -v ${PWD}/my_opt:/opt ubuntu:18.04 /bin/bash
+----
+
+
+=== Docker Whalesay
+
+----
+docker run --rm docker/whalesay cowsay hello 4bhif
+----
+
+=== nginx - Step 1
+
+.Starting nginx
+----
+docker run --rm -p 8081:80 --name nginx nginx
+----
+
+=== nginx - Step 2
+
+.Terminal 1: Starting nginx
+----
+docker run --rm -p 8081:80 --name nginx nginx
+----
+
+.Terminal 2: Open a terminal in the docker container
+----
+docker exec -it nginx /bin/sh
+----
+
+=== nginx - Step 3
+
+.Terminal 1: Start nginx with a volume in the current folder
+----
+docker run --rm -v ${PWD}/data:/usr/share/nginx/html -p 8081:80 --name nginx nginx
+----
+
+=== PostgreSQL
+
+----
+docker run --ulimit memlock=-1:-1 \
+           -it \
+           --rm=true \
+           --memory-swappiness=0 \
+           --name postgres \
+           -v ${PWD}/pgdata:/var/lib/postgresql/data \
+           -e POSTGRES_USER=app \
+           -e POSTGRES_PASSWORD=app \
+           -e POSTGRES_DB=db \
+           -p 5432:5432 postgres:10.5
+----
+
+
+== Unterschied zum Arbeiten ohne Docker
+
+* Ohne Docker werden auf einer Maschine mehrere Softwareprodukte installiert
+* Bei Verwendung von Docker wird für jedes
+Softwareprodukt ein eigener Docker-Container erstellt
+
+
+== Starten einer Jenkins-Instanz in Docker
+
+----
+docker run -it \
+           --rm \
+           -v /var/run/docker.sock:/var/run/docker.sock \
+           -v ${PWD}/jenkins-data:/var/jenkins_home \
+           -p 8080:8080 \
+           --name local-jenkins \
+           getintodevops/jenkins-withdocker:lts-docker19.03.5
+----
+
+////
+== Remove Docker-Volumes
+
+ docker system prune --volumes
+
+source: https://linuxize.com/post/how-to-remove-docker-images-containers-volumes-and-networks/
+////
+
+
+////
+== screen-Terminal
+
+ screen ~/Library/Containers/com.docker.docker/Data/vms/0/tty
+
+Aussteigen mit Ctrl-a Ctrl-d
+
+////
+
+.root-password
+image:jenkins-0010-root-password.png[]
+
+image:jenkins-0020-unlock-jenkins.png[]
+
+image::jenkins-0030-install-suggested-plugins.png[]
+
+image:jenkins-0040-create-suggested-plugins.png[]
+
+image:jenkins-0050-create-first-admin-user.png[]
+
+image:jenkins-0060-instance-configuration.png[]
+
+image:jenkins-0070-jenkins-is-ready.png[]
+
+image:jenkins-0080-dashboard.png[]
+
+image:jenkins-0090-dashboard-people.png[]
+
+image:jenkins-0100-people-configure.png[]
+
+image:jenkins-0110-change-password.png[]
+
+
+
+
+
+
+== Dockerfile
+
+[source,docker]
+----
+FROM jenkins/jenkins:lts
+MAINTAINER miiro@getintodevops.com
+USER root
+
+# Install the latest Docker CE binaries
+RUN apt-get update && \
+    apt-get -y install apt-transport-https \
+      ca-certificates \
+      curl \
+      gnupg2 \
+      software-properties-common && \
+    curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg > /tmp/dkey; apt-key add /tmp/dkey && \
+    add-apt-repository \
+      "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") \
+      $(lsb_release -cs) \
+      stable" && \
+   apt-get update && \
+   apt-get -y install docker-ce
+----
+
+source: https://getintodevops.com/blog/the-simple-way-to-run-docker-in-docker-for-ci[The simple way to run Docker-in-Docker for CI]
+
+
+////
+== Add User to Dockergroup
+
+ sudo usermod -a -G <group> <user>
+
+-a ... append +
+-G ... group
+
+ sudo usermod -a -G docker ubuntu
+
+////
+
+== Does Docker work
+
+----
+node {
+    docker.image('alpine:latest').inside {
+        sh 'echo Hello World!'
+    }
+}
+----
+
+----
+pipeline {
+   agent any
+   stages {
+      stage('Hello') {
+         steps {
+            echo 'Hello World'
+         }
+      }
+   }
+}
+----
+
+== Assignment
+
+This assignment is complete when you have configured a Jenkins job that triggers automatically every 10 minutes,
+and prints the text "Hello World" in the console output.
+
+=== Solution
+
+There are many possible solutions for this task:
+
+1. Create pipeline job
+
+2. Build Triggers  - Build Periodically - Schedule: H/10 * * * *
++
+Jenkins uses a cron expression, and the different fields are:
+
+* MINUTES Minutes in one hour (0-59)
+* HOURS Hours in one day (0-23)
+* DAYMONTH Day in a month (1-31)
+* MONTH Month in a year (1-12)
+* DAYWEEK Day of the week (0-7) where 0 and 7 are sunday
+
+ The H option enables Jenkins to pick a random minute for running the job, avoiding load spikes.
+
+=== Pipeline script
+
+example hello world from jenkins
+
+----
+pipeline {
+   agent any
+   stages {
+      stage('Hello') {
+         steps {
+            echo 'Hello World'
+         }
+      }
+   }
+}
+----
+
+=== Pipeline script
+with docker
+
+----
+node {
+    docker.image('alpine:latest').inside {
+        sh 'echo Hello World!'
+    }
+}
+----
+
+////
+1. Describe your solution, including at least the job type, build steps or stages, automatic triggering logic and schedule, any commands / code used
+
+Option 1: Jenkins Freestyle job
+
+The assignment can be completed with a Jenkins Freestyle job.
+
+    Set Build periodically in the Build triggers section, setting schedule to H/10 * * * *  to trigger the job automatically every 10 minutes. The H option enables Jenkins to pick a random minute for running the job, avoiding load spikes.
+
+    Add Execute Shell build step in the Build section. As the shell command, enter echo "Hello World" to output the desired string in the console output of this job.
+
+
+Option 2: Jenkins Pipeline job
+
+The assignment can be completed with a Jenkins Pipeline job.
+
+    Set Build periodically in the Build triggers section, setting schedule to H/10 * * * *  to trigger the job automatically every 10 minutes. The H option enables Jenkins to pick a random minute for running the job, avoiding load spikes.
+
+    Configure a Pipeline using either an in-repository or inline Jenkinsfile pipeline definition:
+
+    node {
+      stage('Output') {
+        sh 'echo "Hello World"'
+      }
+    }
+
+
+The Freestyle job type is suitable for a simple job like this, but practicing the use of a Jenkins Pipeline is beneficial, because that's the job type we'll be using throughout this course.
+
+////
+
+
+=== maybe the best solution
+
+[source,bash]
+----
+pipeline {
+  agent any
+  triggers {
+        cron('H/10 * * * *')
+    }
+  stages {
+    stage('Print 10 times') {
+    steps {
+        sh '''#!/bin/bash
+        set -ex
+        echo "Hello world"
+        ''' }
+      }
+  }
+}
+----
+
+
+[%notitle]
+=== Musterlösung
+
+image::jenkins-23-assignment-hello-world.png[background, size=cover]
+
+
+== Build a pipeline with Jenkins
+
+=== Jenkins
+
+* Automation Server mostly used for CI and CD pipelines
+* Pipelines as code
+* Pipelines werden mittels *Jenkinsfiles* deklariert
+* Java
+
+=== Komponenten
+
+* *Job* oder *project*
+* *Master* hosted das Jenkins user-interface
+* *Agent* kann auf unterschiedlichen Server laufen. Sind optional.
+* *Executor* ist ein Slot in dem ein Job läuft. Sowohl Masters als auch Agents können Executors haben.
+
+=== Job Types
+
+* Freestyle
+* Pipeline
+* Multibranch Pipeline
+* GitHub Organisation Job
+
+=== Jenkinsfile
+
+* Text file definert einen Jenkins Pipeline Job
+* Deklarativ (einfach) oder gescripted (mehr Möglichkeiten, Groovy)
+* Stages für unterschiedliche Teile der Pipeline: build, test, deploy, ...
+* werden im Git-Repository gespeichert
+
+=== Overview
+
+[plantuml,verview-pipeline,png]
+----
+@startuml
+agent "Trigger:\n**Code changed in Git**\n**repository**" as trigger
+agent "Stage: \n**Build docker image**" as build
+agent "Stage: \n**Run tests**" as test
+agent "Stage: \n**Push image to**\n**docker hub**" as push
+trigger -> build
+build -> test
+test -> push
+@enduml
+----
+
+IMPORTANT: Man benötigt einen Account auf https://hub.docker.com
+
+=== Steps
+
+* Clonen des Vorlageprojekts
+* Kopieren des Templates, um ein eigenes Applikations-Repository zu erstellen
+* Erstellen eines GitHub-Repositories und pushen des Codes
+
+==== Clonen des Vorlageprojekts
+
+[source,bash]
+----
+git clone https://github.com/getintodevops/bestpractices-docker-jenkins.git
+----
+
+==== Kopieren des tatsächlichen Projekts
+
+[source,bash]
+----
+cp -r bestpractices-docker-jenkins/example-app .
+----
+
+==== Initialize Git-Repository
+
+[source,bash]
+----
+cd example-app
+git init
+----
+
+=== Create Git-Repository
+
+image:jenkins-0120-create-repository.png[]
+
+=== Connect local Repo to GitHub
+
+[source,bash]
+----
+git remote add origin https://github.com/htl-leonding/example-app.git
+----
+
+=== Commit Projekt
+
+[source,bash]
+----
+git add .
+git commit -m 'initial commit'
+git push origin master
+----
+
+== What is a Dockerfile for?
+
+* Define the source or base image
+* Define the list of actions to take on the base image
+* Tell Docker how to run the image
+
+=== Define the source or base image
+
+
+[source,docker]
+----
+FROM node:13.8.0
+----
+
+IMPORTANT: Pin exact versions instead of using :latest
+
+=== Define the list of actions
+
+Copy all files into Docker-container
+
+[source,docker]
+----
+FROM node:13.8.0
+COPY . .
+----
+
+IMPORTANT: Use COPY instead of ADD unless you specifically know you need to use ADD
+
+=== Further steps
+
+[source,docker]
+----
+FROM node:13.8.0
+COPY . .
+RUN npm install
+EXPOSE 8000
+CMD npm start
+----
+
+NOTE: EXPOSE is only for documentation
+
+=== Build an image
+
+[source,docker]
+----
+docker build -t example-app .
+----
+
+NOTE: Note the period
+
+== Jenkinsfile Basics
+
+image:jenkins-34-jenkinsfile-basics.png[]
+
+=== Create a Jenkinsfile
+
+----
+node {
+
+}
+----
+
+node means that all commands within run in an executor reserved for this job
+
+=== def app
+
+[source,groovy]
+----
+node {
+    def app
+}
+----
+
+Declares a variable called app. This variable will point to the docker image, we build later.
+
+=== stage
+
+[source,groovy]
+----
+node {
+    def app
+
+    stage('Clone repository') {
+
+    }
+}
+----
+
+The name will only be used for logfiles and visualization of the job
+
+=== The Complete Jenkins-File
+
+[source,groovy]
+----
+node {
+    def app
+
+    stage('Clone repository') {
+        checkout scm
+    }
+
+    stage('Build image') {
+        app = docker.build('htlleonding/example-app')
+    }
+
+    stage('Push image') {
+        docker.withRegistry('https://registry.hub.docker.com',
+                            'docker-hub-credentials') {
+            app.push('latest')
+        }
+    }
+}
+----
+
+|===
+| command | purpose
+
+|checkout scm
+|scm ... source code management. Der Sourcecode wird aus dem git-repo ausgecheckt.
+
+|===
+
+=== Add Files to Repo
+
+[source,shell]
+----
+git add Dockerfile Jenkinsfile
+git commit -m 'pipeline configuration'
+git push origin master
+----
+
+== Create a Jenkins Job
+
+In Jenkins
+
+* New Item
+* Item name: example-app
+* Item type: pipeline
+
+=== Build Trigger
+
+* Poll SCM
+* Schedule: H/5 * * * *
+
+=== Pipeline
+
+* Definition: Pipeline script from SCM
+** SCM: Git
+*** Repositories
+**** Repository URL: https://github.com/htl-leonding/example-app.git
+**** Credentials: - none -
+
+
+=== Add Credentials
+
+* Docker Home Page
+* Credentials
+** Stores scoped to Jenkins: (global)
+*** Add Credentials
+**** Kind: Username with password
+***** Scope: Global
+***** Username: xxxx
+***** Password: yyyy
+***** ID: docker-hub-credentials
+***** Description: Credentials for accessing docker hub.
+
+=== Copy a test-file
+
+[source,bash]
+----
+cp ../bestpractices-docker-jenkins/building-docker-images/test.js.example ./test.js
+----
+
+=== Test-file
+
+[source,javascript]
+----
+var assert = require('assert')
+
+function test() {
+  assert.equal(2 + 2, 4);
+}
+
+if (module == require.main) require('test').run(test);
+----
+
+=== Add stage to Jenkinsfile
+
+Add stage('Test') between stage('Build image') and stage('Push image')
+
+[source,groovy]
+----
+    stage('Test') {
+        app.inside {
+            sh 'npm test'
+        }
+    }
+----
+
+=== Commit and Push
+
+[source,bash]
+----
+git add Jenkinsfile test.js
+git commit -m 'add tests'
+git push origin master
+----
+
+Automatic build within 5 min
+
+[%notitle]
+=== Build - Unit-Tests
+
+image::jenkins-35-jenkinsfile-bsp-run-pipeline.png[background, size=cover]
+
+[%notitle]
+=== Build - Layers
+
+image::jenkins-36-jenkinsfile-bsp-run-pipeline.png[background, size=cover]
+
+== Jenkins Security
+
+image:jenkins-37-jenkinsfile-security.png[]
+
+=== Jenkins in private Network
+
+image:jenkins-38-jenkinsfile-security-vpn.png[]
+
+=== No Webhooks possible
+
+image:jenkins-39-jenkinsfile-security-vpn.png[]
+
+=== Workaround: Polling
+
+image:jenkins-40-jenkinsfile-security-vpn.png[]
+
+=== Firewall
+
+image:jenkins-41-jenkinsfile-security-firewall.png[]
+
+=== Polling is possible
+
+image:jenkins-42-jenkinsfile-security-firewall.png[]
+
+=== VPN
+
+image:jenkins-43-jenkinsfile-security-vpn.png[]
+
+=== Keep Jenkins and plugins up to date!
+
+=== Single Sign-On
+
+image:jenkins-44-jenkinsfile-security-single-sign-on.png[]
+
+You can use the github-authentication-plug. so the members of a github organiszation have access.
+
+
+== Managing Dependencies
+
+=== An Applications needs Node 10
+
+[plantuml,node10,png]
+----
+@startuml
+digraph foo {
+  node1 [shape=record, label = "{ Node 10 | Jenkins }"]
+}
+@enduml
+----
+
+=== Another Applications needs Node 13
+
+[plantuml,node13,png]
+----
+@startuml
+digraph foo1 {
+  node10 [shape=record, label = "{ Node 10 | Jenkins }"]
+  node13 [shape=record, label = "{ Node 13? | Jenkins }"]
+}
+@enduml
+----
+
+=== Jenkins Master-Slave
+
+[plantuml,masterslave,png]
+----
+@startuml
+digraph foo1 {
+  slave1 [shape=record, label = "{ Node 10 | Jenkins }"]
+  slave2 [shape=record, label = "{ Node 13 | Jenkins }"]
+  master [shape = rectangle, label = "Jenkins Master"]
+  master -> slave1
+  master -> slave2
+}
+@enduml
+----
+
+=== Puppet
+
+image:jenkins-45-jenkins-configure-dependency.png[]
+
+=== Problems
+
+image:jenkins-46-jenkins-slaves-problem.png[]
+
+=== Generic Docker Slaves
+
+image:jenkins-51-generic-docker-slaves.png[]
+
+
+
+
+
+
+
