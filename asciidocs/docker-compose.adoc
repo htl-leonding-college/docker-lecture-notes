@@ -32,16 +32,75 @@ image:under-construction-640.png[link="https://pixabay.com/illustrations/under-c
 This page is still under construction
 
 
+== Was bisher geschah ...
 
+* Docker Lösungen bestehen aus Images und Containern
 
+* Docker Container beinhalten einzelne Dienste
+** Früher wurden mehrere Dienste pro OS installiert
+** Dies ist nicht mehr der Fall -> Ein Dienst pro Container
 
+* Jeder Docker Container erhält vom Docker daemon eine IP in einem eigenen "Docker-Netzwerk".
+** Diese Netzwerk mus vorab mit `docker network create xxx` erstellt werden
+** In dieses Netzwerk können mehrere Container eingebunden werden mit `--network=xxx`.
+** Dadurch ist der Zugriff aufeinander ohne geöffnete Ports nach außen möglich
+** Dies wird selten verwendet
+** Will man mehrere Container für eine Softwarelösung verwenden ist neben zb k8s auch docker-compose eine Lösung
 
+== Überblick
 
+* docker-compose dient zum Orchestrieren von (mehreren) Containern.
 
+* Diese Container laufen in (mind.) einem gemeinsamen (virtuellem) Docker-Netzwerk mit eigenen IP-Adressen
+** Der Zugriff aufeinander - also zwischen den Containern - ist leicht möglich (dh ohne Ports zu öffnen)
 
+image:docker-compose.png[]
 
+== Konfiguration von docker-compose
 
+* Der Bauplan für docker-compose-Softwarelösungen sind sogenannte yaml-Files -> docker-compose.yml
 
+[source,yml]
+----
+version: '3.8'
+
+services:
+  mc:
+    image: itzg/minecraft-server
+    ports:
+      - 25565:25565
+    environment:
+      EULA: "TRUE"
+    volumes:
+      - ./minecraft-data:/data
+----
+
+.Aufruf mit
+----
+docker-compose up -d
+----
+
+* -d ... daemon -> läuft im Hintergrund
+
+.Das Datenverzeichnis wird automatisch erstellt
+----
+.
+└── minecraft-data
+    ├── logs
+    └── world
+        ├── DIM-1
+        │   └── data
+        ├── DIM1
+        │   └── data
+        ├── data
+        ├── datapacks
+        ├── playerdata
+        └── region
+----
+
+https://github.com/itzg/docker-minecraft-server
+
+== Beispiel: Erstellen eines Quarkus-Backends mit postgres-DB
 
 
 
