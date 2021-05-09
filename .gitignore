@@ -10,3 +10,4 @@ revealjs.zip
 .env
 node_modules/
 dist/
+gh-pages/
