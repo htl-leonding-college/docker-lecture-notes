@@ -115,6 +115,16 @@ Hardware
 
 image:docker-lightweight-virt.png[]
 
+* Bsp. für "schwergewichtige" Virtualisierung
+** VirtualBox
+** vmWare
+** ...
+
+* Bsp. für leichtgewichtige Virtualisierung
+** Docker
+** Podman
+** ...
+
 == Grundprinzip
 
 * Dockerfile: Kochrezept zum Erstellen des Images
@@ -186,7 +196,7 @@ image:docker-architecture.png[]
 === Image alpine ausführen
 
 ----
-docker run alpine echo Hello 4xhif!
+docker run alpine echo Hello 4xhix
 ----
 
 
@@ -196,11 +206,46 @@ docker run alpine echo Hello 4xhif!
 docker run -it alpine /bin/sh
 ----
 
-=== Ubuntu mit einem externen Volume
+* -it -> interaktives Terminal
+
+oder
+
 ----
-docker run -it --name syp_ubuntu -v ${PWD}/my_opt:/opt ubuntu:18.04 /bin/bash
+docker run -it ubuntu:21.04 /bin/bash
 ----
 
+== Ubuntu mit einem Volume
+
+----
+docker run -it --name syp_ubuntu -v my-opt:/opt ubuntu:21.04 /bin/bash
+----
+
+.ansehen mit
+----
+docker volume ls
+----
+
+
+
+=== Ubuntu mit einem bind mount
+
+----
+docker run -it --name syp_ubuntu -v ${PWD}/my_opt:/opt ubuntu:21.04 /bin/bash
+----
+
+=== Ubuntu mit einem volume
+
+----
+docker volume create my_volume
+docker run -it --name syp_ubuntu -v my_volume:/opt ubuntu:21.04 /bin/bash
+----
+
+* erstelle ein file im opt-folder: `echo 123 > my-file.txt`
+* beende container
+* lösche container
+* erstelle und starte einen neuen Container -> das File befindet sich immer noch im Volume
+
+image:docker-bindmount-vs-volume.png[]
 
 === Docker Whalesay
 
@@ -214,6 +259,8 @@ docker run --rm docker/whalesay cowsay hello 4bhif
 ----
 docker run --rm -p 8081:80 --name nginx nginx
 ----
+
+image:docker-port-mapping.png[]
 
 === nginx - Step 2
 
@@ -234,16 +281,16 @@ docker exec -it nginx /bin/sh
 docker run --rm -v ${PWD}/data:/usr/share/nginx/html -p 8081:80 --name nginx nginx
 ----
 
-.Image + Containt (w/ port + volume)
+image:docker-starten-nginx.png[]
+
+.Image + Container (w/ port + volume)
 image:docker-image-container.png[]
 
 === PostgreSQL
 
 ----
-docker run --ulimit memlock=-1:-1 \
-           -it \
+docker run -it \
            --rm=true \
-           --memory-swappiness=0 \
            --name postgres \
            -v ${PWD}/pgdata:/var/lib/postgresql/data \
            -e POSTGRES_USER=app \
@@ -258,7 +305,7 @@ docker run --ulimit memlock=-1:-1 \
 [source,shell script]
 ----
 docker pull itzg/minecraft-server
-docker run -d -p 25565:25565 --name mc itzg/minecraft-server
+docker run -d -p 25565:25565 -e EULA=TRUE --name mc itzg/minecraft-server
 ----
 
 * https://github.com/itzg/docker-minecraft-server/blob/master/README.md[Documentation on github]
@@ -282,6 +329,22 @@ das Netzwerk des Hosts direkt
 ** *Overlay*: Verbindet Container die auf unterschiedlichen Docker-Hosts laufen
 ** *Macvlan*: Weist eine MAC-Adresse einem Container zu. Für low-level Netzwerkanforderungen
 ** *None*: Deaktiviert das Netzwerk zwischen den Containern
+
+
+image:docker-network.png[]
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
