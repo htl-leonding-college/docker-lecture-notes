@@ -15,7 +15,7 @@ ifndef::imagesdir[:imagesdir: images]
 ifdef::backend-html5[]
 
 // https://fontawesome.com/v4.7.0/icons/
-icon:file-text-o[link=https://raw.githubusercontent.com/htl-leonding-college/security-lecture-notes/master/asciidocs/{docname}.adoc] ‏ ‏ ‎
+icon:file-text-o[link=https://raw.githubusercontent.com/htl-leonding-college/docker-lecture-notes/main/asciidocs/{docname}.adoc] ‏ ‏ ‎
 icon:github-square[link=https://github.com/htl-leonding-college/docker-lecture-notes] ‏ ‏ ‎
 icon:home[link=http://edufs.edu.htl-leonding.ac.at/~t.stuetz/hugo/2021/01/technology-notes/]
 endif::backend-html5[]
@@ -40,7 +40,7 @@ This page is still under construction
 
 == Build a Docker Container
 
-
+<<dockerfile.adoc#_create_a_docker_image,Create a Docker image>>
 
 
 == docker-compose

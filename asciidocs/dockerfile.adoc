@@ -1,0 +1,233 @@
+= Create a Docker Image
+Thomas W. Stütz, credits to Christian Aberger
+2.0.0, 2023-04-08: How to use docker in project work @ HTL Leonding college
+ifndef::imagesdir[:imagesdir: images]
+//:toc-placement!:  // prevents the generation of the doc at this position, so it can be printed afterwards
+:sourcedir: ../src/main/java
+:icons: font
+:sectnums:    // Nummerierung der Überschriften / section numbering
+:sectnumlevels: 5
+:toc: left
+:toclevels: 5
+:experimental: true
+:linkattrs:   // so window="_blank" will be executed
+
+//Need this blank line after ifdef, don't know why...
+ifdef::backend-html5[]
+
+// https://fontawesome.com/v4.7.0/icons/
+icon:file-text-o[link=https://raw.githubusercontent.com/htl-leonding-college/docker-lecture-notes/main/asciidocs/{docname}.adoc] ‏ ‏ ‎
+icon:github-square[link=https://github.com/htl-leonding-college/docker-lecture-notes] ‏ ‏ ‎
+icon:home[link=https://htl-leonding-college.github.io/docker-lecture-notes/docker.html]
+endif::backend-html5[]
+
+== Grundlagen
+
+* Docker-Images können aus Docker-Registries gepullt werden
+** https://hub.docker.com/
+** https://quay.io/search
+** uvam
+
+* Oft ist es aber sinnvoll ein eigenes Image zu bauen.
+
+== Dockerfile
+
+* Man benötigt hierzu eine Textdatei mit dem Namen `Dockerfile` (ohne extension)
+
+* wie in einem Script kann eine Umgebung für das Programm gebaut werden, dass am Ende im docker-Continer laufen wird.
+
+* Es gibt hierfür mehrere Kommandos, die wir nun kennenlernen werden.
+
+[plantuml,build-image,png]
+----
+@startuml
+file Dockerfile as dockerfile
+file "Docker\nImage" as image
+node "Docker\nContainer" as container
+
+dockerfile -> image: build
+image -> container: run
+@enduml
+----
+
+* Jeder Docker Container führt nur EIN Kommando aus:
+** CMD oder
+** ENTRYPOINT
+
+
+
+* Jedes Kommando ist ein eigener Layer, daher werden RUN - Kommandos oft mit && verbunden, um die Anzahl der Layer zu reduzieren. -> https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#minimize-the-number-of-layers[Minimize the number of layers^]
+
+
+
+
+* Alle .sh files die in `/docker-entrypoint.d` enthalten sind, werden automatisch beim Starten des Containers ausgeführt. [https://www.camptocamp.com/en/news-events/flexible-docker-entrypoints-scripts[source^]]
+
+image::dockerfile-kommandos.png[]
+
+
+== FROM
+
+* Zum Auswählen des 'Base Images*
+* Man kann hierfür ein Betriebssystem wählen zB u buntu, alpine oder bereits mit einer Applikation, wie zB nginx, mariadb, postgres, node, ...
+
+* gibt man keine docker-registry an, wird automatisch https://hub.docker.com verwendet
+
+* Die https://docs.docker.com/engine/reference/builder/#from[Syntax^] des FROM-Kommandos sieht wie folgt aus:
++
+----
+FROM [--platform=<platform>] <image>[:<tag>] [AS <name>]
+
+----
+
+.Mögliche Verwendung von FROM
+[source,dockerfile]
+----
+FROM openjdk:20-jdk
+FROM --platform=linux/arm64 20-jdk
+FROM openjdk:latest
+FROM openjdk:20-jdk
+FROM --platform=linux/arm64 eclipse-temurin:20-jammy
+----
+
+.HelloWorld.java
+[source,java]
+----
+public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello world!");
+    }
+}
+----
+
+
+=== Beispiel 1
+[source,dockerfile]
+----
+FROM openjdk:latest # <.>
+COPY ./src .  # <.>
+RUN javac HelloWorld.java # <.>
+CMD java HelloWorld # <.>
+----
+
+<.> Nur beim Entwickeln `:latest` verwenden
+<.> Kopiert alle Files from Ordner ./src in den aktuellen Ordner im Image (root)
+<.> RUN führt ein Kommando aus
+<.> CMD ist der eine Befehl, weswegen der Container gestartet wird.
+
+.Bauen des Images
+[source,shell]
+----
+ docker build -t hello-world .
+----
+
+.Starten des Containers
+[source,shell]
+----
+docker run --name hello-world hello-world:latest
+----
+
+.Ansehen des gestoppten Containers
+[source,shell]
+----
+docker container ls -a
+----
+
+.Löschen des gestoppten Containers
+[source,shell]
+----
+docker container rm hello-world
+----
+
+=== Beispiel 2
+
+* Es wird nur das image gewechselt -> Java auf Ubuntu
+
+[source,dockerfile]
+----
+FROM eclipse-temurin:20-jammy
+COPY ./src .
+RUN javac HelloWorld.java
+CMD java HelloWorld
+----
+
+* Nun ist genau festgelegt
+** welches JDK verwendet wird -> temurin 20
+** welches OS verwendet wird -> Ubuntu 22.04 LTS Jammy Jellyfish
+
+
+
+.Bauen des Images
+[source,shell]
+----
+ docker build -t hello-world .
+----
+
+.Starten des Containers
+[source,shell]
+----
+docker run --rm \  # <.>
+           --name hello-world hello-world:latest
+----
+
+<.> rm ... remove -> der gestoppte Container wird automatisch gelöscht
+
+
+
+=== Beispiel 3
+
+.index.html
+[source,html]
+----
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HTL</title>
+</head>
+<body>
+<h1>My Personal Site</h1>
+<p>
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit
+</p>
+<p>
+   Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua
+</p>
+</body>
+</html>
+----
+
+.Dockerfile
+[source,dockerfile]
+----
+FROM ubuntu:22.04
+
+MAINTAINER stuetz
+
+RUN apt update
+RUN apt install -y nginx
+COPY index.html /usr/share/nginx/index.html
+
+EXPOSE 80
+ENTRYPOINT ["/usr/sbin/nginx", "-g", "daemon off;"]
+----
+
+----
+# build the image
+docker build -t my-webserver:v1.0 .
+
+# start the container
+docker run --rm \
+           -p 8080:80 \
+           --name my-web my-webserver:v1.0
+----
+
+* Man würde eher ein fertiges nginx-image verwenden, als es zu bauen.
+
+
+
+
+
+
+
+
