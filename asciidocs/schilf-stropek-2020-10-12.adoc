@@ -9,6 +9,7 @@ ifndef::sourcedir[:sourcedir: ../../main/java]
 :toc: left
 :sectnums:
 
+[[bookmark-document-start]]
 == What is Docker?
 
 * Frage: Was wäre, wenn es kein Docker gäbe

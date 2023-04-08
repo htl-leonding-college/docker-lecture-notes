@@ -9,6 +9,7 @@ ifndef::sourcedir[:sourcedir: ../../main/java]
 :toc: left
 :sectnums:
 
+[[bookmark-document-start]]
 == Was ist Docker?
 
 * Eine Technologie, um eine Application und alle ihre Abhängigkeiten in einen

@@ -32,9 +32,7 @@ image:under-construction-640.png[link="https://pixabay.com/illustrations/under-c
 This page is still under construction
 
 
-<<create-quarkus-app.adoc#,Create a Quarkus Application>>
-
-
+[[bookmark-document-start]]
 == Was ist Docker?
 
 * Eine Technologie, um eine Application und alle ihre Abhängigkeiten in einen

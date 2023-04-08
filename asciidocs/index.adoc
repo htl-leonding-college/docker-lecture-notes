@@ -16,7 +16,7 @@ ifdef::backend-html5[]
 
 // https://fontawesome.com/v4.7.0/icons/
 icon:file-text-o[link=https://raw.githubusercontent.com/htl-leonding-college/security-lecture-notes/master/asciidocs/{docname}.adoc] ‏ ‏ ‎
-icon:github-square[link=https://github.com/htl-leonding-college/security-lecture-notes] ‏ ‏ ‎
+icon:github-square[link=https://github.com/htl-leonding-college/docker-lecture-notes] ‏ ‏ ‎
 icon:home[link=http://edufs.edu.htl-leonding.ac.at/~t.stuetz/hugo/2021/01/technology-notes/]
 endif::backend-html5[]
 
@@ -33,29 +33,46 @@ This page is still under construction
 
 
 
+== Docker - Grundlagen
 
-== Docker
+<<docker.adoc#bookmark-document-start,Docker>>
 
-<<docker.adoc#,Docker>>
+
+== Build a Docker Container
 
 
 
 
 == docker-compose
 
-<<docker-compose.adoc#,docker-compose>>
+<<docker-compose.adoc#bookmark-document-start,docker-compose>>
 
 
 == Deployment
 
-<<docker-deployment.adoc#,Deployment of Docker Container>>
+<<docker-deployment.adoc#bookmark-document-start,Deployment of Docker Container>>
+
+
+
+== sources
+
+* https://devopscube.com/category/docker/[devopscube - browsing categrory - docker^]
+* https://devopscube.com/build-docker-image/[Dockerfile Explained]
+
+* alt, aber gut
++
+++++
+<iframe width="560" height="315" src="https://www.youtube.com/embed/pTFZFxd4hOI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+++++
+
 
 
 == [deprecated]
 
-<<docker-jenkins.adoc#,Docker and Jenkins>>
+<<docker-jenkins.adoc#bookmark-document-start,Docker and Jenkins>>
 
-<<schilf-stropek-2020-10-12.adoc#,schilf-stropek-2020-10-12>>
+<<schilf-stropek-2020-10-12.adoc#bookmark-document-start,schilf-stropek-2020-10-12>>
+
 
 
 

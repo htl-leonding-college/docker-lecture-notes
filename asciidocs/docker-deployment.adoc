@@ -25,6 +25,7 @@ endif::backend-html5[]
 
 //image:maintenance_640.jpg[link="https://pixabay.com/illustrations/maintenance-under-construction-2422172/", width=60%, window="_blank"]
 
+[[bookmark-document-start]]
 image:under-construction-640.png[link="https://pixabay.com/illustrations/under-construction-construction-sign-2408062/", width=60%, window="_blank"]
 
 //image:sign-work-in-progress.png[link="https://pixabay.com/vectors/work-under-construction-98936/", width=60%, window="_blank"]
