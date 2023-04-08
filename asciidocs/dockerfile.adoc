@@ -18,7 +18,7 @@ ifdef::backend-html5[]
 // https://fontawesome.com/v4.7.0/icons/
 icon:file-text-o[link=https://raw.githubusercontent.com/htl-leonding-college/docker-lecture-notes/main/asciidocs/{docname}.adoc] ‏ ‏ ‎
 icon:github-square[link=https://github.com/htl-leonding-college/docker-lecture-notes] ‏ ‏ ‎
-icon:home[link=https://htl-leonding-college.github.io/docker-lecture-notes/docker.html]
+icon:home[link=https://htl-leonding-college.github.io/docker-lecture-notes/]
 endif::backend-html5[]
 
 == Grundlagen
@@ -58,18 +58,9 @@ image -> container: docker run
 ----
 
 
-* Jeder Docker Container führt nur EIN Kommando aus:
-** CMD oder
-** ENTRYPOINT
-
-
-
 * Jedes Kommando ist ein eigener Layer, daher werden RUN - Kommandos oft mit && verbunden, um die Anzahl der Layer zu reduzieren. -> https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#minimize-the-number-of-layers[Minimize the number of layers^]
 
 
-
-
-* Alle .sh files die in `/docker-entrypoint.d` enthalten sind, werden automatisch beim Starten des Containers ausgeführt. [https://www.camptocamp.com/en/news-events/flexible-docker-entrypoints-scripts[source^]]
 
 image::dockerfile-kommandos.png[]
 
@@ -233,9 +224,25 @@ docker run --rm \
 * Man würde eher ein fertiges nginx-image verwenden, als es zu bauen.
 
 
+== CMD
+
+
+* Jeder Docker Container führt nur EIN Kommando aus:
+** CMD oder
+** ENTRYPOINT
 
 
 
 
+* Alle .sh files die in `/docker-entrypoint.d` enthalten sind, werden automatisch beim Starten des Containers ausgeführt. [https://www.camptocamp.com/en/news-events/flexible-docker-entrypoints-scripts[source^]]
 
+
+.Dockerfile
+[source,dockerfile]
+----
+FROM ...
+CMD ["tail", "-f", "/dev/null"]
+----
+
+* Dieses Kommando verhindert, dass der Docker Container beendet wird.
 
