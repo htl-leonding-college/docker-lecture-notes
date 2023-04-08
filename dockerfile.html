@@ -579,6 +579,7 @@ pre.rouge .hll * {
 <li><a href="#_beispiel_1">4. Beispiel 1</a></li>
 <li><a href="#_beispiel_2">5. Beispiel 2</a></li>
 <li><a href="#_beispiel_3">6. Beispiel 3</a></li>
+<li><a href="#_cmd">7. CMD</a></li>
 </ul>
 </div>
 </div>
@@ -588,7 +589,7 @@ pre.rouge .hll * {
 <div class="paragraph">
 <p><span class="icon"><a class="image" href="https://raw.githubusercontent.com/htl-leonding-college/docker-lecture-notes/main/asciidocs/dockerfile.adoc"><i class="fa fa-file-text-o"></i></a></span> ‏ ‏ ‎
 <span class="icon"><a class="image" href="https://github.com/htl-leonding-college/docker-lecture-notes"><i class="fa fa-github-square"></i></a></span> ‏ ‏ ‎
-<span class="icon"><a class="image" href="https://htl-leonding-college.github.io/docker-lecture-notes/docker.html"><i class="fa fa-home"></i></a></span></p>
+<span class="icon"><a class="image" href="https://htl-leonding-college.github.io/docker-lecture-notes/"><i class="fa fa-home"></i></a></span></p>
 </div>
 </div>
 </div>
@@ -647,23 +648,7 @@ pre.rouge .hll * {
 <div class="ulist">
 <ul>
 <li>
-<p>Jeder Docker Container führt nur EIN Kommando aus:</p>
-<div class="ulist">
-<ul>
-<li>
-<p>CMD oder</p>
-</li>
-<li>
-<p>ENTRYPOINT</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
 <p>Jedes Kommando ist ein eigener Layer, daher werden RUN - Kommandos oft mit &amp;&amp; verbunden, um die Anzahl der Layer zu reduzieren. &#8594; <a href="https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#minimize-the-number-of-layers" target="_blank" rel="noopener">Minimize the number of layers</a></p>
-</li>
-<li>
-<p>Alle .sh files die in <code>/docker-entrypoint.d</code> enthalten sind, werden automatisch beim Starten des Containers ausgeführt. [<a href="https://www.camptocamp.com/en/news-events/flexible-docker-entrypoints-scripts" target="_blank" rel="noopener">source</a>]</p>
 </li>
 </ul>
 </div>
@@ -894,11 +879,50 @@ docker run --rm \
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_cmd"><a class="anchor" href="#_cmd"></a>7. CMD</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Jeder Docker Container führt nur EIN Kommando aus:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>CMD oder</p>
+</li>
+<li>
+<p>ENTRYPOINT</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Alle .sh files die in <code>/docker-entrypoint.d</code> enthalten sind, werden automatisch beim Starten des Containers ausgeführt. [<a href="https://www.camptocamp.com/en/news-events/flexible-docker-entrypoints-scripts" target="_blank" rel="noopener">source</a>]</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">Dockerfile</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> ...</span>
+<span class="k">CMD</span><span class="s"> ["tail", "-f", "/dev/null"]</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Dieses Kommando verhindert, dass der Docker Container beendet wird.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 2.0.0<br>
-Last updated 2023-04-08 17:24:18 UTC
+Last updated 2023-04-08 17:43:04 UTC
 </div>
 </div>
 </body>
