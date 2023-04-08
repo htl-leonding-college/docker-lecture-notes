@@ -63,6 +63,31 @@ image -right-> container : docker run
 @enduml
 ----
 
+[plantuml,dockerbuild,png]
+----
+@startuml
+cloud "Docker Registry" {
+artifact "docker\nImage"
+}
+
+artifact image [
+
+  docker
+  image
+
+]
+artifact container [
+
+  docker
+  container
+
+]
+"docker\nImage" -right-> image : docker pull
+image -right-> container : docker run
+@enduml
+----
+
+
 == Leichtgewichtige Virtualisierung
 
 .Virtualisierung

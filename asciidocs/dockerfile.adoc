@@ -44,10 +44,14 @@ endif::backend-html5[]
 ----
 @startuml
 !theme materia
+cloud "Docker Registry" {
+artifact "docker\nImage" as img
+}
 file Dockerfile as dockerfile
 artifact "Docker\nImage" as image
 node "Docker\nContainer" as container
 
+img -> dockerfile: FROM
 dockerfile -> image: docker build
 image -> container: docker run
 @enduml
