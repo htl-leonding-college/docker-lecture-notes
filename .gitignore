@@ -1,13 +1,8 @@
-build-docs-html/
-build-docs-pdf/
-build-docs-revealjs/
 target/
-asciidocs/revealjs/
-revealjs.zip
 .idea/
 *.iml
 .DS_Store
 .env
 node_modules/
-dist/
-gh-pages/
+dist
+docs/slides/revealjs
