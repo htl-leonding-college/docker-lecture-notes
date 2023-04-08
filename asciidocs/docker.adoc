@@ -85,6 +85,7 @@ Host OS
 ---
 Hardware
 ]
+@enduml
 ----
 
 .Leichtgewichtige Virtualisierung
