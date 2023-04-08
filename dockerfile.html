@@ -5,8 +5,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
+<meta name="author" content="Thomas W. Stütz, credits to Christian Aberger">
 <link rel="icon" type="image/png" href="themes/favicon.png">
-<title>Untitled</title>
+<title>Create a Docker Image</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -438,6 +439,120 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
+pre.rouge table td { padding: 5px; }
+pre.rouge table pre { margin: 0; }
+pre.rouge, pre.rouge .w {
+  color: #24292f;
+  background-color: #f6f8fa;
+}
+pre.rouge .k, pre.rouge .kd, pre.rouge .kn, pre.rouge .kp, pre.rouge .kr, pre.rouge .kt, pre.rouge .kv {
+  color: #cf222e;
+}
+pre.rouge .gr {
+  color: #f6f8fa;
+}
+pre.rouge .gd {
+  color: #82071e;
+  background-color: #ffebe9;
+}
+pre.rouge .nb {
+  color: #953800;
+}
+pre.rouge .nc {
+  color: #953800;
+}
+pre.rouge .no {
+  color: #953800;
+}
+pre.rouge .nn {
+  color: #953800;
+}
+pre.rouge .sr {
+  color: #116329;
+}
+pre.rouge .na {
+  color: #116329;
+}
+pre.rouge .nt {
+  color: #116329;
+}
+pre.rouge .gi {
+  color: #116329;
+  background-color: #dafbe1;
+}
+pre.rouge .kc {
+  color: #0550ae;
+}
+pre.rouge .l, pre.rouge .ld, pre.rouge .m, pre.rouge .mb, pre.rouge .mf, pre.rouge .mh, pre.rouge .mi, pre.rouge .il, pre.rouge .mo, pre.rouge .mx {
+  color: #0550ae;
+}
+pre.rouge .sb {
+  color: #0550ae;
+}
+pre.rouge .bp {
+  color: #0550ae;
+}
+pre.rouge .ne {
+  color: #0550ae;
+}
+pre.rouge .nl {
+  color: #0550ae;
+}
+pre.rouge .py {
+  color: #0550ae;
+}
+pre.rouge .nv, pre.rouge .vc, pre.rouge .vg, pre.rouge .vi, pre.rouge .vm {
+  color: #0550ae;
+}
+pre.rouge .o, pre.rouge .ow {
+  color: #0550ae;
+}
+pre.rouge .gh {
+  color: #0550ae;
+  font-weight: bold;
+}
+pre.rouge .gu {
+  color: #0550ae;
+  font-weight: bold;
+}
+pre.rouge .s, pre.rouge .sa, pre.rouge .sc, pre.rouge .dl, pre.rouge .sd, pre.rouge .s2, pre.rouge .se, pre.rouge .sh, pre.rouge .sx, pre.rouge .s1, pre.rouge .ss {
+  color: #0a3069;
+}
+pre.rouge .nd {
+  color: #8250df;
+}
+pre.rouge .nf, pre.rouge .fm {
+  color: #8250df;
+}
+pre.rouge .err {
+  color: #f6f8fa;
+  background-color: #82071e;
+}
+pre.rouge .c, pre.rouge .ch, pre.rouge .cd, pre.rouge .cm, pre.rouge .cp, pre.rouge .cpf, pre.rouge .c1, pre.rouge .cs {
+  color: #6e7781;
+}
+pre.rouge .gl {
+  color: #6e7781;
+}
+pre.rouge .gt {
+  color: #6e7781;
+}
+pre.rouge .ni {
+  color: #24292f;
+}
+pre.rouge .si {
+  color: #24292f;
+}
+pre.rouge .ge {
+  color: #24292f;
+  font-style: italic;
+}
+pre.rouge .gs {
+  color: #24292f;
+  font-weight: bold;
+}
+</style>
+<style>
 pre.rouge .hll {
   background-color: #ffc;
 }
@@ -446,15 +561,338 @@ pre.rouge .hll * {
 }
 </style>
 </head>
-<body class="article">
+<body class="article toc2 toc-left">
 <div id="header">
+<h1>Create a Docker Image</h1>
+<div class="details">
+<span id="author" class="author">Thomas W. Stütz, credits to Christian Aberger</span><br>
+<span id="revnumber">version 2.0.0,</span>
+<span id="revdate">2023-04-08</span>
+<br><span id="revremark">How to use docker in project work @ HTL Leonding college</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_grundlagen">1. Grundlagen</a></li>
+<li><a href="#_dockerfile">2. Dockerfile</a></li>
+<li><a href="#_from">3. FROM</a>
+<ul class="sectlevel2">
+<li><a href="#_beispiel_1">3.1. Beispiel 1</a></li>
+<li><a href="#_beispiel_2">3.2. Beispiel 2</a></li>
+<li><a href="#_beispiel_3">3.3. Beispiel 3</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </div>
 <div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><span class="icon"><a class="image" href="https://raw.githubusercontent.com/htl-leonding-college/docker-lecture-notes/main/asciidocs/dockerfile.adoc"><i class="fa fa-file-text-o"></i></a></span> ‏ ‏ ‎
+<span class="icon"><a class="image" href="https://github.com/htl-leonding-college/docker-lecture-notes"><i class="fa fa-github-square"></i></a></span> ‏ ‏ ‎
+<span class="icon"><a class="image" href="https://htl-leonding-college.github.io/docker-lecture-notes/docker.html"><i class="fa fa-home"></i></a></span></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_grundlagen"><a class="anchor" href="#_grundlagen"></a>1. Grundlagen</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Docker-Images können aus Docker-Registries gepullt werden</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://hub.docker.com/" class="bare">https://hub.docker.com/</a></p>
+</li>
+<li>
+<p><a href="https://quay.io/search" class="bare">https://quay.io/search</a></p>
+</li>
+<li>
+<p>uvam</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Oft ist es aber sinnvoll ein eigenes Image zu bauen.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_dockerfile"><a class="anchor" href="#_dockerfile"></a>2. Dockerfile</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Man benötigt hierzu eine Textdatei mit dem Namen <code>Dockerfile</code> (ohne extension)</p>
+</li>
+<li>
+<p>wie in einem Script kann eine Umgebung für das Programm gebaut werden, dass am Ende im docker-Continer laufen wird.</p>
+</li>
+<li>
+<p>Es gibt hierfür mehrere Kommandos, die wir nun kennenlernen werden.</p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/build-image.png" alt="build image" width="412" height="84">
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Jeder Docker Container führt nur EIN Kommando aus:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>CMD oder</p>
+</li>
+<li>
+<p>ENTRYPOINT</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Jedes Kommando ist ein eigener Layer, daher werden RUN - Kommandos oft mit &amp;&amp; verbunden, um die Anzahl der Layer zu reduzieren. &#8594; <a href="https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#minimize-the-number-of-layers" target="_blank" rel="noopener">Minimize the number of layers</a></p>
+</li>
+<li>
+<p>Alle .sh files die in <code>/docker-entrypoint.d</code> enthalten sind, werden automatisch beim Starten des Containers ausgeführt. [<a href="https://www.camptocamp.com/en/news-events/flexible-docker-entrypoints-scripts" target="_blank" rel="noopener">source</a>]</p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/dockerfile-kommandos.png" alt="dockerfile kommandos">
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_from"><a class="anchor" href="#_from"></a>3. FROM</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Zum Auswählen des 'Base Images*</p>
+</li>
+<li>
+<p>Man kann hierfür ein Betriebssystem wählen zB u buntu, alpine oder bereits mit einer Applikation, wie zB nginx, mariadb, postgres, node, &#8230;&#8203;</p>
+</li>
+<li>
+<p>gibt man keine docker-registry an, wird automatisch <a href="https://hub.docker.com" class="bare">https://hub.docker.com</a> verwendet</p>
+</li>
+<li>
+<p>Die <a href="https://docs.docker.com/engine/reference/builder/#from" target="_blank" rel="noopener">Syntax</a> des FROM-Kommandos sieht wie folgt aus:</p>
+<div class="listingblock">
+<div class="content">
+<pre>FROM [--platform=&lt;platform&gt;] &lt;image&gt;[:&lt;tag&gt;] [AS &lt;name&gt;]</pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">Mögliche Verwendung von FROM</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> openjdk:20-jdk</span>
+<span class="k">FROM</span><span class="s"> --platform=linux/arm64 20-jdk</span>
+<span class="k">FROM</span><span class="s"> openjdk:latest</span>
+<span class="k">FROM</span><span class="s"> openjdk:20-jdk</span>
+<span class="k">FROM</span><span class="s"> --platform=linux/arm64 eclipse-temurin:20-jammy</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">HelloWorld.java</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloWorld</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Hello world!"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_beispiel_1"><a class="anchor" href="#_beispiel_1"></a>3.1. Beispiel 1</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> openjdk:latest </span><i class="conum" data-value="1"></i><b>(1)</b>
+<span class="k">COPY</span><span class="s"> ./src .  </span><i class="conum" data-value="2"></i><b>(2)</b>
+<span class="k">RUN </span>javac HelloWorld.java <i class="conum" data-value="3"></i><b>(3)</b>
+<span class="k">CMD</span><span class="s"> java HelloWorld </span><i class="conum" data-value="4"></i><b>(4)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Nur beim Entwickeln <code>:latest</code> verwenden</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Kopiert alle Files from Ordner ./src in den aktuellen Ordner im Image (root)</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>RUN führt ein Kommando aus</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>CMD ist der eine Befehl, weswegen der Container gestartet wird.</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Bauen des Images</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell"> docker build <span class="nt">-t</span> hello-world .</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Starten des Containers</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell">docker run <span class="nt">--name</span> hello-world hello-world:latest</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Ansehen des gestoppten Containers</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell">docker container <span class="nb">ls</span> <span class="nt">-a</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Löschen des gestoppten Containers</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell">docker container <span class="nb">rm </span>hello-world</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_beispiel_2"><a class="anchor" href="#_beispiel_2"></a>3.2. Beispiel 2</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Es wird nur das image gewechselt &#8594; Java auf Ubuntu</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> eclipse-temurin:20-jammy</span>
+<span class="k">COPY</span><span class="s"> ./src .</span>
+<span class="k">RUN </span>javac HelloWorld.java
+<span class="k">CMD</span><span class="s"> java HelloWorld</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Nun ist genau festgelegt</p>
+<div class="ulist">
+<ul>
+<li>
+<p>welches JDK verwendet wird &#8594; temurin 20</p>
+</li>
+<li>
+<p>welches OS verwendet wird &#8594; Ubuntu 22.04 LTS Jammy Jellyfish</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">Bauen des Images</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell"> docker build <span class="nt">-t</span> hello-world .</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Starten des Containers</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell">docker run <span class="nt">--rm</span> <span class="se">\ </span> <i class="conum" data-value="1"></i><b>(1)</b>
+           <span class="nt">--name</span> hello-world hello-world:latest</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>rm &#8230;&#8203; remove &#8594; der gestoppte Container wird automatisch gelöscht</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_beispiel_3"><a class="anchor" href="#_beispiel_3"></a>3.3. Beispiel 3</h3>
+<div class="listingblock">
+<div class="title">index.html</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="html"><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="nt">&lt;html</span> <span class="na">lang=</span><span class="s">"en"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;head&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">"UTF-8"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;title&gt;</span>HTL<span class="nt">&lt;/title&gt;</span>
+<span class="nt">&lt;/head&gt;</span>
+<span class="nt">&lt;body&gt;</span>
+<span class="nt">&lt;h1&gt;</span>My Personal Site<span class="nt">&lt;/h1&gt;</span>
+<span class="nt">&lt;p&gt;</span>
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit
+<span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;p&gt;</span>
+   Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua
+<span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Dockerfile</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> ubuntu:22.04</span>
 
+<span class="k">MAINTAINER</span><span class="s"> stuetz</span>
+
+<span class="k">RUN </span>apt update
+<span class="k">RUN </span>apt <span class="nb">install</span> <span class="nt">-y</span> nginx
+<span class="k">COPY</span><span class="s"> index.html /usr/share/nginx/index.html</span>
+
+<span class="k">EXPOSE</span><span class="s"> 80</span>
+<span class="k">ENTRYPOINT</span><span class="s"> ["/usr/sbin/nginx", "-g", "daemon off;"]</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre># build the image
+docker build -t my-webserver:v1.0 .
+
+# start the container
+docker run --rm \
+           -p 8080:80 \
+           --name my-web my-webserver:v1.0</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Man würde eher ein fertiges nginx-image verwenden, als es zu bauen.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-04-08 11:59:18 UTC
+Version 2.0.0<br>
+Last updated 2023-04-08 16:48:37 UTC
 </div>
 </div>
 </body>
