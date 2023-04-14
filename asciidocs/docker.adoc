@@ -38,7 +38,7 @@ anderen Hostsystem läuft.
 
 == Wie funktioniert Docker?
 
-[plantuml,dockerbuild,png]
+[plantuml,dockerimage,png]
 ----
 @startuml
 file dockerfile [
@@ -62,6 +62,7 @@ dockerfile -right-> image : docker build
 image -right-> container : docker run
 @enduml
 ----
+
 
 [plantuml,dockerbuild,png]
 ----
