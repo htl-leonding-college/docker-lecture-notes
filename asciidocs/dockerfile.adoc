@@ -205,7 +205,7 @@ MAINTAINER stuetz
 
 RUN apt update
 RUN apt install -y nginx
-COPY index.html /usr/share/nginx/index.html
+COPY index.html /var/www/html/index.nginx-debian.html
 
 EXPOSE 80
 ENTRYPOINT ["/usr/sbin/nginx", "-g", "daemon off;"]
