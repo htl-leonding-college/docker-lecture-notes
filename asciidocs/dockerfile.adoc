@@ -36,7 +36,7 @@ endif::backend-html5[]
 
 * Man benötigt hierzu eine Textdatei mit dem Namen `Dockerfile` (ohne extension)
 
-* wie in einem Script kann eine Umgebung für das Programm gebaut werden, dass am Ende im docker-Container laufen wird.
+* wie in einem Script kann eine Umgebung für das Programm gebaut werden. Dadurch wird das Image so konfiguriert,  dass am Ende die Applikation im docker-Container laufen wird.
 
 * Es gibt hierfür mehrere Kommandos, die wir nun kennenlernen werden.
 

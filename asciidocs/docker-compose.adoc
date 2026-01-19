@@ -42,7 +42,7 @@ endif::backend-html5[]
 
 == Überblick
 
-* docker-compose dient zum Orchestrieren von (mehreren) Containern.
+* docker-compose dient zum Orchestrieren von (mehreren) Containern (multi-container applications).
 
 * Diese Container laufen in (mind.) einem gemeinsamen (virtuellem) Docker-Netzwerk mit eigenen IP-Adressen
 ** Der Zugriff aufeinander - also zwischen den Containern - ist leicht möglich (dh ohne Ports zu öffnen)
