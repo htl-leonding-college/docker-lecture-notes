@@ -578,30 +578,37 @@ pre.rouge .hll * {
 <li><a href="#bookmark-document-start">1. Was ist Docker?</a></li>
 <li><a href="#_wie_funktioniert_docker">2. Wie funktioniert Docker?</a></li>
 <li><a href="#_leichtgewichtige_virtualisierung">3. Leichtgewichtige Virtualisierung</a></li>
-<li><a href="#_grundprinzip">4. Grundprinzip</a></li>
-<li><a href="#_ist_docker_installiert">5. Ist Docker installiert?</a></li>
-<li><a href="#_docker_registries">6. Docker Registries</a></li>
-<li><a href="#_bind_mounts_and_volumes">7. Bind Mounts and Volumes</a></li>
-<li><a href="#_erste_beispiele_mit_docker">8. Erste Beispiele mit Docker</a>
+<li><a href="#_images_und_container">4. Images und Container</a>
 <ul class="sectlevel2">
-<li><a href="#_image_alpine_ausführen">8.1. Image alpine ausführen</a></li>
-<li><a href="#_image_alpine_interaktiv">8.2. Image alpine interaktiv</a></li>
+<li><a href="#_übung_ist_docker_installiert">4.1. Übung - Ist Docker installiert?</a></li>
 </ul>
 </li>
-<li><a href="#_ubuntu_mit_einem_volume">9. Ubuntu mit einem Volume</a>
+<li><a href="#_docker_registries">5. Docker Registries</a>
 <ul class="sectlevel2">
-<li><a href="#_ubuntu_mit_einem_bind_mount">9.1. Ubuntu mit einem bind mount</a></li>
-<li><a href="#_ubuntu_mit_einem_volume_2">9.2. Ubuntu mit einem volume</a></li>
-<li><a href="#_docker_whalesay">9.3. Docker Whalesay</a></li>
-<li><a href="#_nginx_step_1">9.4. nginx - Step 1</a></li>
-<li><a href="#_nginx_step_2">9.5. nginx - Step 2</a></li>
-<li><a href="#_nginx_step_3">9.6. nginx - Step 3</a></li>
-<li><a href="#_postgresql">9.7. PostgreSQL</a></li>
-<li><a href="#_minecraft">9.8. Minecraft</a></li>
+<li><a href="#_übung_docker_whalesay">5.1. Übung Docker Whalesay</a></li>
+<li><a href="#_übung_image_alpine_ausführen">5.2. Übung: Image alpine ausführen</a></li>
+<li><a href="#_übung_image_alpine_interaktiv">5.3. Übung: Image alpine interaktiv</a></li>
+<li><a href="#_wichtige_docker_kommandos">5.4. Wichtige Docker-Kommandos:</a></li>
 </ul>
 </li>
-<li><a href="#_unterschied_zum_arbeiten_ohne_docker">10. Unterschied zum Arbeiten ohne Docker</a></li>
-<li><a href="#_docker_networks">11. Docker Networks</a></li>
+<li><a href="#_bind_mounts_and_volumes">6. Bind Mounts and Volumes</a>
+<ul class="sectlevel2">
+<li><a href="#_übung_ubuntu_mit_einem_volume">6.1. Übung: Ubuntu mit einem Volume</a></li>
+<li><a href="#_übung_ubuntu_mit_einem_bind_mount">6.2. Übung: Ubuntu mit einem bind mount</a></li>
+<li><a href="#_übung_ubuntu_mit_einem_volume_2">6.3. Übung: Ubuntu mit einem Volume</a></li>
+</ul>
+</li>
+<li><a href="#_ports">7. Ports</a>
+<ul class="sectlevel2">
+<li><a href="#_übung_nginx_step_1">7.1. Übung: nginx - Step 1</a></li>
+<li><a href="#_übung_nginx_step_2">7.2. Übung: nginx - Step 2</a></li>
+<li><a href="#_übung_nginx_step_3">7.3. Übung: nginx - Step 3</a></li>
+<li><a href="#_übung_postgresql">7.4. Übung: PostgreSQL</a></li>
+<li><a href="#_übung_minecraft">7.5. Übung: Minecraft</a></li>
+</ul>
+</li>
+<li><a href="#_unterschied_zum_arbeiten_ohne_docker">8. Unterschied zum Arbeiten ohne Docker</a></li>
+<li><a href="#_docker_networks">9. Docker Networks</a></li>
 </ul>
 </div>
 </div>
@@ -621,13 +628,14 @@ pre.rouge .hll * {
 <div class="ulist">
 <ul>
 <li>
-<p>Eine Technologie, um eine Application und alle ihre Abhängigkeiten in einen
-einzelnen, leicht zu transportierenden Container zu packen.</p>
+<p>Eine Technologie, um eine Applikation und alle ihre Abhängigkeiten in einen
+einzelnen Container zu packen.</p>
 </li>
 <li>
-<p>Wird eine Applikation in einen Docker-Container gepackt, so ist sichergestellt,
-dass die Laufzeitumgebung unverändert bleibt, auch wenn der container auf einem
-anderen Hostsystem läuft.</p>
+<p>es können mehrere Container auf einem Hostsystem laufen, die sich nicht beeinflussen. So ist es zB möglich mehrere Versionen einer Applikation (zB eine Datenbank) parallel zu betreiben.</p>
+</li>
+<li>
+<p>Wird eine Applikation in einen Docker-Container gepackt, so ist sichergestellt, dass die Laufzeitumgebung unverändert bleibt, auch wenn der Container auf einem anderen Hostsystem läuft.</p>
 </li>
 </ul>
 </div>
@@ -636,33 +644,12 @@ anderen Hostsystem läuft.</p>
 <div class="sect1">
 <h2 id="_wie_funktioniert_docker"><a class="anchor" href="#_wie_funktioniert_docker"></a>2. Wie funktioniert Docker?</h2>
 <div class="sectionbody">
-<div class="imageblock">
-<div class="content">
-<img src="images/dockerimage.png" alt="dockerimage" width="531" height="100">
-</div>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="images/dockerbuild.png" alt="dockerbuild" width="538" height="124">
-</div>
-</div>
+
 </div>
 </div>
 <div class="sect1">
 <h2 id="_leichtgewichtige_virtualisierung"><a class="anchor" href="#_leichtgewichtige_virtualisierung"></a>3. Leichtgewichtige Virtualisierung</h2>
 <div class="sectionbody">
-<div class="imageblock">
-<div class="content">
-<img src="images/virt1.png" alt="virt1" width="200" height="202">
-</div>
-<div class="title">Figure 1. Virtualisierung</div>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="images/virt2.png" alt="virt2" width="108" height="153">
-</div>
-<div class="title">Figure 2. Leichtgewichtige Virtualisierung</div>
-</div>
 <div class="paragraph">
 <p><span class="image"><img src="images/docker-lightweight-virt.png" alt="docker lightweight virt"></span></p>
 </div>
@@ -705,61 +692,70 @@ anderen Hostsystem läuft.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_grundprinzip"><a class="anchor" href="#_grundprinzip"></a>4. Grundprinzip</h2>
+<h2 id="_images_und_container"><a class="anchor" href="#_images_und_container"></a>4. Images und Container</h2>
 <div class="sectionbody">
+<div class="imageblock">
+<div class="content">
+<img src="images/docker-image-container-v2.png" alt="docker image container v2">
+</div>
+</div>
 <div class="ulist">
 <ul>
 <li>
-<p>Dockerfile: Kochrezept zum Erstellen des Images</p>
+<p><strong>Image</strong>: Immutable Image - die Files könnnen nicht verändert werden.</p>
 </li>
 <li>
-<p>Image: Immutable Image</p>
+<p><strong>Container</strong>: Ein <strong>Prozess</strong>, der auf dem Image basiert. Natürlich möchte der Container Files im Image verändern können. Daher werden die veränderten Files in einem sogenannten <strong>Writable Layer</strong> (hier rosa) gespeichert. Daher ist ein Container nicht nur ein Prozess, sondern beinhaltet auch Files.</p>
 </li>
 <li>
-<p>Container: Ein gestartetes Image (mutable)</p>
+<p><strong>Ports</strong>: Container können Ports freigeben, um mit der Außenwelt zu kommunizieren.</p>
+</li>
+<li>
+<p><strong>Volumes</strong>: Container können Volumes mounten, um Daten persistent zu speichern.</p>
+</li>
+<li>
+<p><strong>Dockerfile</strong>: Kochrezept zum Erstellen des Images</p>
 </li>
 </ul>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_ist_docker_installiert"><a class="anchor" href="#_ist_docker_installiert"></a>5. Ist Docker installiert?</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_übung_ist_docker_installiert"><a class="anchor" href="#_übung_ist_docker_installiert"></a>4.1. Übung - Ist Docker installiert?</h3>
 <div class="literalblock">
 <div class="content">
 <pre>docker version</pre>
 </div>
 </div>
 <div class="listingblock">
+<div class="title">result</div>
 <div class="content">
 <pre>% docker version
-Client: Docker Engine - Community
- Version:           19.03.5
- API version:       1.40
- Go version:        go1.12.12
- Git commit:        633a0ea
- Built:             Wed Nov 13 07:22:34 2019
- OS/Arch:           darwin/amd64
- Experimental:      false
+Client:
+ Version:           29.1.3
+ API version:       1.52
+ Go version:        go1.25.5
+ Git commit:        f52814d
+ Built:             Fri Dec 12 14:48:46 2025
+ OS/Arch:           darwin/arm64
+ Context:           desktop-linux
 
-Server: Docker Engine - Community
+Server: Docker Desktop 4.57.0 (215387)
  Engine:
-  Version:          19.03.5
-  API version:      1.40 (minimum version 1.12)
-  Go version:       go1.12.12
-  Git commit:       633a0ea
-  Built:            Wed Nov 13 07:29:19 2019
-  OS/Arch:          linux/amd64
-  Experimental:     true
+  Version:          29.1.3
+  API version:      1.52 (minimum version 1.44)
+  Go version:       go1.25.5
+  Git commit:       fbf3ed2
+  Built:            Fri Dec 12 14:50:40 2025
+  OS/Arch:          linux/arm64
+  Experimental:     false
  containerd:
-  Version:          v1.2.10
-  GitCommit:        b34a5c8af56e510852c35414db4c1f4fa6172339
+  Version:          v2.2.1
+  GitCommit:        dea7da592f5d1d2b7755e3a161be07f43fad8f75
  runc:
-  Version:          1.0.0-rc8+dev
-  GitCommit:        3e425f80a8c931f88e6d94a8c831b9d5aa481657
+  Version:          1.3.4
+  GitCommit:        v1.3.4-0-gd6d73eb8
  docker-init:
-  Version:          0.18.0
-  GitCommit:        fec3683</pre>
+  Version:          0.19.0
+  GitCommit:        de40ad0</pre>
 </div>
 </div>
 <div class="listingblock">
@@ -769,9 +765,27 @@ Server: Docker Engine - Community
 </div>
 </div>
 </div>
+</div>
 <div class="sect1">
-<h2 id="_docker_registries"><a class="anchor" href="#_docker_registries"></a>6. Docker Registries</h2>
+<h2 id="_docker_registries"><a class="anchor" href="#_docker_registries"></a>5. Docker Registries</h2>
 <div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Woher kommen nun die Images, die für den Betrieb der Container gebraucht werden?</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Entweder bauen wir die Images selbst mit einem Dockerfile (etwas später mehr dazu)</p>
+</li>
+<li>
+<p>Oder wir laden die Images aus einer <strong>Docker Registry</strong> herunter</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Docker Registry</strong>:</p>
 <div class="ulist">
 <ul>
 <li>
@@ -788,51 +802,22 @@ Server: Docker Engine - Community
 </li>
 </ul>
 </div>
+</li>
+</ul>
+</div>
 <div class="paragraph">
-<p><span class="image"><img src="images/docker-architecture.png" alt="docker architecture"></span></p>
+<p><span class="image"><img src="images/docker-architecture-v2.png" alt="docker architecture v2"></span></p>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_bind_mounts_and_volumes"><a class="anchor" href="#_bind_mounts_and_volumes"></a>7. Bind Mounts and Volumes</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Bind Mounts</strong> ein File oder Verzeichnis des Containers wird in einem File oder Verzeichnis zugänglich gemacht</p>
-<div class="ulist">
-<ul>
-<li>
-<p>docker run -v ${PWD}/directory-on-host:/directory-in-container</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p><strong>Named Volumes</strong> existieren am Host. Sie werden durch die Docker CLI manipuliert.</p>
-<div class="ulist">
-<ul>
-<li>
-<p>docker volume create my-volume</p>
-</li>
-<li>
-<p>docker run -v my-volume:/directory-in-container</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>Volumes verfügen über mehr Features wie <strong>Cloud Storage Backends</strong></p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_erste_beispiele_mit_docker"><a class="anchor" href="#_erste_beispiele_mit_docker"></a>8. Erste Beispiele mit Docker</h2>
-<div class="sectionbody">
 <div class="sect2">
-<h3 id="_image_alpine_ausführen"><a class="anchor" href="#_image_alpine_ausführen"></a>8.1. Image alpine ausführen</h3>
+<h3 id="_übung_docker_whalesay"><a class="anchor" href="#_übung_docker_whalesay"></a>5.1. Übung Docker Whalesay</h3>
+<div class="listingblock">
+<div class="content">
+<pre>docker run --rm docker/whalesay cowsay hello 4bhif</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_übung_image_alpine_ausführen"><a class="anchor" href="#_übung_image_alpine_ausführen"></a>5.2. Übung: Image alpine ausführen</h3>
 <div class="listingblock">
 <div class="content">
 <pre>docker run alpine echo Hello 4xhix</pre>
@@ -840,7 +825,7 @@ Server: Docker Engine - Community
 </div>
 </div>
 <div class="sect2">
-<h3 id="_image_alpine_interaktiv"><a class="anchor" href="#_image_alpine_interaktiv"></a>8.2. Image alpine interaktiv</h3>
+<h3 id="_übung_image_alpine_interaktiv"><a class="anchor" href="#_übung_image_alpine_interaktiv"></a>5.3. Übung: Image alpine interaktiv</h3>
 <div class="listingblock">
 <div class="content">
 <pre>docker run -it alpine /bin/sh</pre>
@@ -858,18 +843,96 @@ Server: Docker Engine - Community
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>docker run -it ubuntu:21.04 /bin/bash</pre>
+<pre>docker run -it ubuntu:24.04 /bin/bash</pre>
 </div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Mit der Option <code>--rm</code> wird der Container nach dem Beenden automatisch gelöscht.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_wichtige_docker_kommandos"><a class="anchor" href="#_wichtige_docker_kommandos"></a>5.4. Wichtige Docker-Kommandos:</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>docker pull &lt;image&gt;</code>: Lädt ein Image aus einer Registry herunter</p>
+</li>
+<li>
+<p><code>docker image ls</code>: Listet alle lokal verfügbaren Images auf (früher <code>docker images</code>)</p>
+</li>
+<li>
+<p><code>docker container ls</code>: Listet alle laufenden Container auf (früher <code>docker ps</code>)</p>
+</li>
+<li>
+<p><code>docker container ls -a</code>: Listet alle Container auf, auch die gestoppten</p>
+</li>
+<li>
+<p><code>docker run &lt;image&gt;</code>: Startet einen Container basierend auf dem angegebenen Image</p>
+</li>
+<li>
+<p><code>docker exec -it &lt;container&gt; &lt;command&gt;</code>: Führt einen Befehl in einem laufenden Container aus</p>
+</li>
+<li>
+<p><code>docker stop &lt;container&gt;</code>: Stoppt einen laufenden Container</p>
+</li>
+<li>
+<p><code>docker rm &lt;container&gt;</code>: Löscht einen gestoppten Container</p>
+</li>
+<li>
+<p><code>docker rmi &lt;image&gt;</code>: Löscht ein Image vom lokalen System</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_ubuntu_mit_einem_volume"><a class="anchor" href="#_ubuntu_mit_einem_volume"></a>9. Ubuntu mit einem Volume</h2>
+<h2 id="_bind_mounts_and_volumes"><a class="anchor" href="#_bind_mounts_and_volumes"></a>6. Bind Mounts and Volumes</h2>
 <div class="sectionbody">
+<div class="imageblock">
+<div class="content">
+<img src="images/docker-bindmount-vs-volume.png" alt="docker bindmount vs volume">
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Bind Mounts</strong> ein File oder Verzeichnis des Containers wird in einem File oder Verzeichnis am Host zugänglich gemacht</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>docker run -v ${PWD}/directory-on-host:/directory-in-container</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>(Named) Volumes</strong> existieren am Host. Sie werden durch die Docker CLI manipuliert.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>docker volume create my-volume</code></p>
+</li>
+<li>
+<p><code>docker run -v my-volume:/directory-in-container</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Volumes verfügen über mehr Features wie <strong>Cloud Storage Backends</strong> beim Einsatz in der Cloud (k8s).</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_übung_ubuntu_mit_einem_volume"><a class="anchor" href="#_übung_ubuntu_mit_einem_volume"></a>6.1. Übung: Ubuntu mit einem Volume</h3>
 <div class="listingblock">
 <div class="content">
-<pre>docker run -it --name syp_ubuntu -v my-opt:/opt ubuntu:21.04 /bin/bash</pre>
+<pre>docker run -it --name syp_ubuntu -v my-opt:/opt ubuntu:24.04 /bin/bash</pre>
 </div>
 </div>
 <div class="listingblock">
@@ -878,20 +941,29 @@ Server: Docker Engine - Community
 <pre>docker volume ls</pre>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_ubuntu_mit_einem_bind_mount"><a class="anchor" href="#_ubuntu_mit_einem_bind_mount"></a>9.1. Ubuntu mit einem bind mount</h3>
-<div class="listingblock">
-<div class="content">
-<pre>docker run -it --name syp_ubuntu -v ${PWD}/my_opt:/opt ubuntu:21.04 /bin/bash</pre>
-</div>
-</div>
 </div>
 <div class="sect2">
-<h3 id="_ubuntu_mit_einem_volume_2"><a class="anchor" href="#_ubuntu_mit_einem_volume_2"></a>9.2. Ubuntu mit einem volume</h3>
+<h3 id="_übung_ubuntu_mit_einem_bind_mount"><a class="anchor" href="#_übung_ubuntu_mit_einem_bind_mount"></a>6.2. Übung: Ubuntu mit einem bind mount</h3>
 <div class="listingblock">
 <div class="content">
-<pre>docker volume create my_volume
-docker run -it --name syp_ubuntu -v my_volume:/opt ubuntu:21.04 /bin/bash</pre>
+<pre>docker run -it --name syp_ubuntu -v ${PWD}/my_opt:/opt ubuntu:24.04 /bin/bash</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">ansehen mit</div>
+<div class="content">
+<pre>ls -lah ./my_opt</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_übung_ubuntu_mit_einem_volume_2"><a class="anchor" href="#_übung_ubuntu_mit_einem_volume_2"></a>6.3. Übung: Ubuntu mit einem Volume</h3>
+<div class="listingblock">
+<div class="content">
+<pre># ist nicht notwendig, wird automatisch erstellt
+docker volume create my_volume
+
+docker run -it --name syp_ubuntu -v my_volume:/opt ubuntu:24.04 /bin/bash</pre>
 </div>
 </div>
 <div class="ulist">
@@ -910,20 +982,30 @@ docker run -it --name syp_ubuntu -v my_volume:/opt ubuntu:21.04 /bin/bash</pre>
 </li>
 </ul>
 </div>
-<div class="paragraph">
-<p><span class="image"><img src="images/docker-bindmount-vs-volume.png" alt="docker bindmount vs volume"></span></p>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_ports"><a class="anchor" href="#_ports"></a>7. Ports</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>In einem Container laufen meist Dienste, wie zB Webserver oder Datenbanken.</p>
+</li>
+<li>
+<p>Diese Dienste müssen über das Netzwerk erreichbar sein.</p>
+</li>
+<li>
+<p>Container sind per default von außen nicht erreichbar.</p>
+</li>
+<li>
+<p>Um einen Dienst im Container erreichbar zu machen, müssen Ports freigegeben werden.</p>
+</li>
+</ul>
 </div>
 <div class="sect2">
-<h3 id="_docker_whalesay"><a class="anchor" href="#_docker_whalesay"></a>9.3. Docker Whalesay</h3>
-<div class="listingblock">
-<div class="content">
-<pre>docker run --rm docker/whalesay cowsay hello 4bhif</pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_nginx_step_1"><a class="anchor" href="#_nginx_step_1"></a>9.4. nginx - Step 1</h3>
+<h3 id="_übung_nginx_step_1"><a class="anchor" href="#_übung_nginx_step_1"></a>7.1. Übung: nginx - Step 1</h3>
 <div class="listingblock">
 <div class="title">Starting nginx</div>
 <div class="content">
@@ -935,7 +1017,7 @@ docker run -it --name syp_ubuntu -v my_volume:/opt ubuntu:21.04 /bin/bash</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_nginx_step_2"><a class="anchor" href="#_nginx_step_2"></a>9.5. nginx - Step 2</h3>
+<h3 id="_übung_nginx_step_2"><a class="anchor" href="#_übung_nginx_step_2"></a>7.2. Übung: nginx - Step 2</h3>
 <div class="listingblock">
 <div class="title">Terminal 1: Starting nginx</div>
 <div class="content">
@@ -950,7 +1032,7 @@ docker run -it --name syp_ubuntu -v my_volume:/opt ubuntu:21.04 /bin/bash</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_nginx_step_3"><a class="anchor" href="#_nginx_step_3"></a>9.6. nginx - Step 3</h3>
+<h3 id="_übung_nginx_step_3"><a class="anchor" href="#_übung_nginx_step_3"></a>7.3. Übung: nginx - Step 3</h3>
 <div class="listingblock">
 <div class="title">Terminal 1: Start nginx with a volume in the current folder</div>
 <div class="content">
@@ -962,11 +1044,11 @@ docker run -it --name syp_ubuntu -v my_volume:/opt ubuntu:21.04 /bin/bash</pre>
 </div>
 <div class="paragraph">
 <div class="title">Image + Container (w/ port + volume)</div>
-<p><span class="image"><img src="images/docker-image-container.png" alt="docker image container"></span></p>
+<p><span class="image"><img src="images/docker-nginx.png" alt="docker nginx"></span></p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_postgresql"><a class="anchor" href="#_postgresql"></a>9.7. PostgreSQL</h3>
+<h3 id="_übung_postgresql"><a class="anchor" href="#_übung_postgresql"></a>7.4. Übung: PostgreSQL</h3>
 <div class="listingblock">
 <div class="content">
 <pre>docker run -it \
@@ -976,12 +1058,12 @@ docker run -it --name syp_ubuntu -v my_volume:/opt ubuntu:21.04 /bin/bash</pre>
            -e POSTGRES_USER=app \
            -e POSTGRES_PASSWORD=app \
            -e POSTGRES_DB=db \
-           -p 5432:5432 postgres:10.5</pre>
+           -p 5432:5432 postgres:18.1</pre>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_minecraft"><a class="anchor" href="#_minecraft"></a>9.8. Minecraft</h3>
+<h3 id="_übung_minecraft"><a class="anchor" href="#_übung_minecraft"></a>7.5. Übung: Minecraft</h3>
 <div class="listingblock">
 <div class="title"><a href="https://hub.docker.com/r/itzg/minecraft-server">Minecraft Server</a></div>
 <div class="content">
@@ -992,7 +1074,10 @@ docker run -d -p 25565:25565 -e EULA=TRUE --name mc itzg/minecraft-server</code>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://github.com/itzg/docker-minecraft-server/blob/master/README.md">Documentation on github</a></p>
+<p><a href="https://hub.docker.com/r/itzg/minecraft-server" target="_blank" rel="noopener">Documentation on Docker Hub</a></p>
+</li>
+<li>
+<p><a href="https://github.com/itzg/docker-minecraft-server/blob/master/README.md" target="_blank" rel="noopener">Documentation on github</a></p>
 </li>
 </ul>
 </div>
@@ -1000,7 +1085,7 @@ docker run -d -p 25565:25565 -e EULA=TRUE --name mc itzg/minecraft-server</code>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_unterschied_zum_arbeiten_ohne_docker"><a class="anchor" href="#_unterschied_zum_arbeiten_ohne_docker"></a>10. Unterschied zum Arbeiten ohne Docker</h2>
+<h2 id="_unterschied_zum_arbeiten_ohne_docker"><a class="anchor" href="#_unterschied_zum_arbeiten_ohne_docker"></a>8. Unterschied zum Arbeiten ohne Docker</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
@@ -1016,7 +1101,7 @@ Softwareprodukt ein eigener Docker-Container erstellt</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_docker_networks"><a class="anchor" href="#_docker_networks"></a>11. Docker Networks</h2>
+<h2 id="_docker_networks"><a class="anchor" href="#_docker_networks"></a>9. Docker Networks</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
@@ -1063,7 +1148,7 @@ das Netzwerk des Hosts direkt</p>
 <div id="footer">
 <div id="footer-text">
 Version 2.0.0<br>
-Last updated 2026-01-19 20:45:32 UTC
+Last updated 2026-01-19 20:46:55 UTC
 </div>
 </div>
 </body>
