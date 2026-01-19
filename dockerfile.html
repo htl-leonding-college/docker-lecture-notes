@@ -855,7 +855,7 @@ pre.rouge .hll * {
 
 <span class="k">RUN </span>apt update
 <span class="k">RUN </span>apt <span class="nb">install</span> <span class="nt">-y</span> nginx
-<span class="k">COPY</span><span class="s"> index.html /usr/share/nginx/index.html</span>
+<span class="k">COPY</span><span class="s"> index.html /var/www/html/index.nginx-debian.html</span>
 
 <span class="k">EXPOSE</span><span class="s"> 80</span>
 <span class="k">ENTRYPOINT</span><span class="s"> ["/usr/sbin/nginx", "-g", "daemon off;"]</span></code></pre>
@@ -924,7 +924,7 @@ docker run --rm \
 <div id="footer">
 <div id="footer-text">
 Version 2.0.0<br>
-Last updated 2026-01-19 19:06:04 UTC
+Last updated 2026-01-19 20:45:32 UTC
 </div>
 </div>
 </body>
