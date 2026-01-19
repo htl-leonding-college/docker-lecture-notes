@@ -28,16 +28,17 @@ endif::backend-html5[]
 [[bookmark-document-start]]
 == Was ist Docker?
 
-* Eine Technologie, um eine Application und alle ihre Abhängigkeiten in einen
-einzelnen, leicht zu transportierenden Container zu packen.
+* Eine Technologie, um eine Applikation und alle ihre Abhängigkeiten in einen
+einzelnen Container zu packen.
 
-* Wird eine Applikation in einen Docker-Container gepackt, so ist sichergestellt,
-dass die Laufzeitumgebung unverändert bleibt, auch wenn der container auf einem
-anderen Hostsystem läuft.
+* es können mehrere Container auf einem Hostsystem laufen, die sich nicht beeinflussen. So ist es zB möglich mehrere Versionen einer Applikation (zB eine Datenbank) parallel zu betreiben.
+
+* Wird eine Applikation in einen Docker-Container gepackt, so ist sichergestellt, dass die Laufzeitumgebung unverändert bleibt, auch wenn der Container auf einem anderen Hostsystem läuft.
 
 
 == Wie funktioniert Docker?
 
+////
 [plantuml,dockerimage,png]
 ----
 @startuml
@@ -88,9 +89,11 @@ image -right-> container : docker run
 @enduml
 ----
 
+////
 
 == Leichtgewichtige Virtualisierung
 
+////
 .Virtualisierung
 [plantuml,virt1,png]
 ----
@@ -131,6 +134,8 @@ Hardware
 @enduml
 ----
 
+////
+
 image:docker-lightweight-virt.png[]
 
 * Bsp. für "schwergewichtige" Virtualisierung
@@ -143,45 +148,51 @@ image:docker-lightweight-virt.png[]
 ** Podman
 ** ...
 
-== Grundprinzip
+== Images und Container
 
-* Dockerfile: Kochrezept zum Erstellen des Images
-* Image: Immutable Image
-* Container: Ein gestartetes Image (mutable)
+image::docker-image-container-v2.png[]
 
-== Ist Docker installiert?
+
+* *Image*: Immutable Image - die Files könnnen nicht verändert werden.
+* *Container*: Ein *Prozess*, der auf dem Image basiert. Natürlich möchte der Container Files im Image verändern können. Daher werden die veränderten Files in einem sogenannten *Writable Layer* (hier rosa) gespeichert. Daher ist ein Container nicht nur ein Prozess, sondern beinhaltet auch Files.
+* *Ports*: Container können Ports freigeben, um mit der Außenwelt zu kommunizieren.
+* *Volumes*: Container können Volumes mounten, um Daten persistent zu speichern.
+* *Dockerfile*: Kochrezept zum Erstellen des Images
+
+=== Übung - Ist Docker installiert?
 
  docker version
 
+.result
 ----
 % docker version
-Client: Docker Engine - Community
- Version:           19.03.5
- API version:       1.40
- Go version:        go1.12.12
- Git commit:        633a0ea
- Built:             Wed Nov 13 07:22:34 2019
- OS/Arch:           darwin/amd64
- Experimental:      false
+Client:
+ Version:           29.1.3
+ API version:       1.52
+ Go version:        go1.25.5
+ Git commit:        f52814d
+ Built:             Fri Dec 12 14:48:46 2025
+ OS/Arch:           darwin/arm64
+ Context:           desktop-linux
 
-Server: Docker Engine - Community
+Server: Docker Desktop 4.57.0 (215387)
  Engine:
-  Version:          19.03.5
-  API version:      1.40 (minimum version 1.12)
-  Go version:       go1.12.12
-  Git commit:       633a0ea
-  Built:            Wed Nov 13 07:29:19 2019
-  OS/Arch:          linux/amd64
-  Experimental:     true
+  Version:          29.1.3
+  API version:      1.52 (minimum version 1.44)
+  Go version:       go1.25.5
+  Git commit:       fbf3ed2
+  Built:            Fri Dec 12 14:50:40 2025
+  OS/Arch:          linux/arm64
+  Experimental:     false
  containerd:
-  Version:          v1.2.10
-  GitCommit:        b34a5c8af56e510852c35414db4c1f4fa6172339
+  Version:          v2.2.1
+  GitCommit:        dea7da592f5d1d2b7755e3a161be07f43fad8f75
  runc:
-  Version:          1.0.0-rc8+dev
-  GitCommit:        3e425f80a8c931f88e6d94a8c831b9d5aa481657
+  Version:          1.3.4
+  GitCommit:        v1.3.4-0-gd6d73eb8
  docker-init:
-  Version:          0.18.0
-  GitCommit:        fec3683
+  Version:          0.19.0
+  GitCommit:        de40ad0
 ----
 
 ----
@@ -191,34 +202,33 @@ sudo usermod -a -G docker jenkins
 
 == Docker Registries
 
-* a remote repository for storing Docker images
-* public or private
-* self-hosted or third-party service
-* ie Docker Hub, Quay.io
+* Woher kommen nun die Images, die für den Betrieb der Container gebraucht werden?
 
-image:docker-architecture.png[]
+** Entweder bauen wir die Images selbst mit einem Dockerfile (etwas später mehr dazu)
+** Oder wir laden die Images aus einer *Docker Registry* herunter
 
-== Bind Mounts and Volumes
+* *Docker Registry*:
+** a remote repository for storing Docker images
+** public or private
+** self-hosted or third-party service
+** ie Docker Hub, Quay.io
 
-* *Bind Mounts* ein File oder Verzeichnis des Containers wird in einem File oder Verzeichnis zugänglich gemacht
-** docker run -v ${PWD}/directory-on-host:/directory-in-container
-* *Named Volumes* existieren am Host. Sie werden durch die Docker CLI manipuliert.
-** docker volume create my-volume
-** docker run -v my-volume:/directory-in-container
+image:docker-architecture-v2.png[]
 
-* Volumes verfügen über mehr Features wie *Cloud Storage Backends*
+=== Übung Docker Whalesay
 
+----
+docker run --rm docker/whalesay cowsay hello 4bhif
+----
 
-== Erste Beispiele mit Docker
-
-=== Image alpine ausführen
+=== Übung: Image alpine ausführen
 
 ----
 docker run alpine echo Hello 4xhix
 ----
 
 
-=== Image alpine interaktiv
+=== Übung: Image alpine interaktiv
 
 ----
 docker run -it alpine /bin/sh
@@ -229,13 +239,41 @@ docker run -it alpine /bin/sh
 oder
 
 ----
-docker run -it ubuntu:21.04 /bin/bash
+docker run -it ubuntu:24.04 /bin/bash
 ----
 
-== Ubuntu mit einem Volume
+* Mit der Option `--rm` wird der Container nach dem Beenden automatisch gelöscht.
+
+=== Wichtige Docker-Kommandos:
+
+* `docker pull <image>`: Lädt ein Image aus einer Registry herunter
+* `docker image ls`: Listet alle lokal verfügbaren Images auf (früher `docker images`)
+* `docker container ls`: Listet alle laufenden Container auf (früher `docker ps`)
+* `docker container ls -a`: Listet alle Container auf, auch die gestoppten
+* `docker run <image>`: Startet einen Container basierend auf dem angegebenen Image
+* `docker exec -it <container> <command>`: Führt einen Befehl in einem laufenden Container aus
+* `docker stop <container>`: Stoppt einen laufenden Container
+* `docker rm <container>`: Löscht einen gestoppten Container
+* `docker rmi <image>`: Löscht ein Image vom lokalen System
+
+
+== Bind Mounts and Volumes
+
+image::docker-bindmount-vs-volume.png[]
+
+* *Bind Mounts* ein File oder Verzeichnis des Containers wird in einem File oder Verzeichnis am Host zugänglich gemacht
+** `docker run -v ${PWD}/directory-on-host:/directory-in-container`
+* *(Named) Volumes* existieren am Host. Sie werden durch die Docker CLI manipuliert.
+** `docker volume create my-volume`
+** `docker run -v my-volume:/directory-in-container`
+
+* Volumes verfügen über mehr Features wie *Cloud Storage Backends* beim Einsatz in der Cloud (k8s).
+
+
+=== Übung: Ubuntu mit einem Volume
 
 ----
-docker run -it --name syp_ubuntu -v my-opt:/opt ubuntu:21.04 /bin/bash
+docker run -it --name syp_ubuntu -v my-opt:/opt ubuntu:24.04 /bin/bash
 ----
 
 .ansehen mit
@@ -245,17 +283,24 @@ docker volume ls
 
 
 
-=== Ubuntu mit einem bind mount
+=== Übung: Ubuntu mit einem bind mount
 
 ----
-docker run -it --name syp_ubuntu -v ${PWD}/my_opt:/opt ubuntu:21.04 /bin/bash
+docker run -it --name syp_ubuntu -v ${PWD}/my_opt:/opt ubuntu:24.04 /bin/bash
 ----
 
-=== Ubuntu mit einem volume
+.ansehen mit
+----
+ls -lah ./my_opt
+----
+
+=== Übung: Ubuntu mit einem Volume
 
 ----
+# ist nicht notwendig, wird automatisch erstellt
 docker volume create my_volume
-docker run -it --name syp_ubuntu -v my_volume:/opt ubuntu:21.04 /bin/bash
+
+docker run -it --name syp_ubuntu -v my_volume:/opt ubuntu:24.04 /bin/bash
 ----
 
 * erstelle ein file im opt-folder: `echo 123 > my-file.txt`
@@ -263,15 +308,16 @@ docker run -it --name syp_ubuntu -v my_volume:/opt ubuntu:21.04 /bin/bash
 * lösche container
 * erstelle und starte einen neuen Container -> das File befindet sich immer noch im Volume
 
-image:docker-bindmount-vs-volume.png[]
 
-=== Docker Whalesay
+== Ports
 
-----
-docker run --rm docker/whalesay cowsay hello 4bhif
-----
+* In einem Container laufen meist Dienste, wie zB Webserver oder Datenbanken.
+* Diese Dienste müssen über das Netzwerk erreichbar sein.
+* Container sind per default von außen nicht erreichbar.
+* Um einen Dienst im Container erreichbar zu machen, müssen Ports freigegeben werden.
 
-=== nginx - Step 1
+
+=== Übung: nginx - Step 1
 
 .Starting nginx
 ----
@@ -280,7 +326,7 @@ docker run --rm -p 8081:80 --name nginx nginx
 
 image:docker-port-mapping.png[]
 
-=== nginx - Step 2
+=== Übung: nginx - Step 2
 
 .Terminal 1: Starting nginx
 ----
@@ -292,7 +338,7 @@ docker run --rm -p 8081:80 --name nginx nginx
 docker exec -it nginx /bin/sh
 ----
 
-=== nginx - Step 3
+=== Übung: nginx - Step 3
 
 .Terminal 1: Start nginx with a volume in the current folder
 ----
@@ -302,9 +348,9 @@ docker run --rm -v ${PWD}/data:/usr/share/nginx/html -p 8081:80 --name nginx ngi
 image:docker-starten-nginx.png[]
 
 .Image + Container (w/ port + volume)
-image:docker-image-container.png[]
+image:docker-nginx.png[]
 
-=== PostgreSQL
+=== Übung: PostgreSQL
 
 ----
 docker run -it \
@@ -314,10 +360,10 @@ docker run -it \
            -e POSTGRES_USER=app \
            -e POSTGRES_PASSWORD=app \
            -e POSTGRES_DB=db \
-           -p 5432:5432 postgres:10.5
+           -p 5432:5432 postgres:18.1
 ----
 
-=== Minecraft
+=== Übung: Minecraft
 
 .https://hub.docker.com/r/itzg/minecraft-server[Minecraft Server]
 [source,shell script]
@@ -326,7 +372,8 @@ docker pull itzg/minecraft-server
 docker run -d -p 25565:25565 -e EULA=TRUE --name mc itzg/minecraft-server
 ----
 
-* https://github.com/itzg/docker-minecraft-server/blob/master/README.md[Documentation on github]
+* https://hub.docker.com/r/itzg/minecraft-server[Documentation on Docker Hub^]
+* https://github.com/itzg/docker-minecraft-server/blob/master/README.md[Documentation on github^]
 
 == Unterschied zum Arbeiten ohne Docker
 
