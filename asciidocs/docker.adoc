@@ -215,11 +215,18 @@ sudo usermod -a -G docker jenkins
 
 image:docker-architecture-v2.png[]
 
-=== Übung Docker Whalesay
+=== Übung Docker Cowsay
 
 ----
-docker run --rm docker/whalesay cowsay hello 4bhif
+
+docker run --rm ubuntu:24.04 sh -c "
+apt-get update -y &&
+apt-get install -y cowsay &&
+export PATH=\$PATH:/usr/games &&
+cowsay 'Hello 4xhif'"
 ----
+
+* -c ... Befehl der in der Shell ausgeführt wird.
 
 === Übung: Image alpine ausführen
 
