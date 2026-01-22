@@ -585,7 +585,7 @@ pre.rouge .hll * {
 </li>
 <li><a href="#_docker_registries">5. Docker Registries</a>
 <ul class="sectlevel2">
-<li><a href="#_übung_docker_whalesay">5.1. Übung Docker Whalesay</a></li>
+<li><a href="#_übung_docker_cowsay">5.1. Übung Docker Cowsay</a></li>
 <li><a href="#_übung_image_alpine_ausführen">5.2. Übung: Image alpine ausführen</a></li>
 <li><a href="#_übung_image_alpine_interaktiv">5.3. Übung: Image alpine interaktiv</a></li>
 <li><a href="#_wichtige_docker_kommandos">5.4. Wichtige Docker-Kommandos:</a></li>
@@ -809,11 +809,22 @@ Server: Docker Desktop 4.57.0 (215387)
 <p><span class="image"><img src="images/docker-architecture-v2.png" alt="docker architecture v2"></span></p>
 </div>
 <div class="sect2">
-<h3 id="_übung_docker_whalesay"><a class="anchor" href="#_übung_docker_whalesay"></a>5.1. Übung Docker Whalesay</h3>
+<h3 id="_übung_docker_cowsay"><a class="anchor" href="#_übung_docker_cowsay"></a>5.1. Übung Docker Cowsay</h3>
 <div class="listingblock">
 <div class="content">
-<pre>docker run --rm docker/whalesay cowsay hello 4bhif</pre>
+<pre>docker run --rm ubuntu:24.04 sh -c "
+apt-get update -y &amp;&amp;
+apt-get install -y cowsay &amp;&amp;
+export PATH=\$PATH:/usr/games &amp;&amp;
+cowsay 'Hello 4xhif'"</pre>
 </div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>-c &#8230;&#8203; Befehl der in der Shell ausgeführt wird.</p>
+</li>
+</ul>
 </div>
 </div>
 <div class="sect2">
@@ -1148,7 +1159,7 @@ das Netzwerk des Hosts direkt</p>
 <div id="footer">
 <div id="footer-text">
 Version 2.0.0<br>
-Last updated 2026-01-19 20:46:55 UTC
+Last updated 2026-01-22 18:27:51 UTC
 </div>
 </div>
 </body>
