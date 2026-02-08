@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -568,6 +568,7 @@ pre.rouge .hll * {
 <h1>Create a Docker Image</h1>
 <div class="details">
 <span id="author" class="author">Thomas W. Stütz</span><br>
+<span id="email" class="email"><a href="mailto:t.stuetz@htl-leonding.ac.at">t.stuetz@htl-leonding.ac.at</a></span><br>
 <span id="revnumber">version 2.0.0,</span>
 <span id="revdate">2023-04-08</span>
 <br><span id="revremark">How to use docker in project work @ HTL Leonding college</span>
@@ -575,13 +576,17 @@ pre.rouge .hll * {
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_grundlagen">1. Grundlagen</a></li>
-<li><a href="#_dockerfile">2. Dockerfile</a></li>
-<li><a href="#_from">3. FROM</a></li>
-<li><a href="#_beispiel_1">4. Beispiel 1</a></li>
-<li><a href="#_beispiel_2">5. Beispiel 2</a></li>
-<li><a href="#_beispiel_3">6. Beispiel 3</a></li>
-<li><a href="#_cmd">7. CMD</a></li>
+<li><a href="#_grundlagen">1. Grundlagen</a>
+<ul class="sectlevel2">
+<li><a href="#_warum_eigene_docker_images_bauen">1.1. Warum eigene Docker-Images bauen?</a></li>
+<li><a href="#_lab">1.2. Lab</a></li>
+</ul>
+</li>
+<li><a href="#_from">2. FROM</a></li>
+<li><a href="#_beispiel_1">3. Beispiel 1</a></li>
+<li><a href="#_beispiel_2">4. Beispiel 2</a></li>
+<li><a href="#_beispiel_3">5. Beispiel 3</a></li>
+<li><a href="#_cmd">6. CMD</a></li>
 </ul>
 </div>
 </div>
@@ -598,6 +603,8 @@ pre.rouge .hll * {
 <div class="sect1">
 <h2 id="_grundlagen"><a class="anchor" href="#_grundlagen"></a>1. Grundlagen</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="_warum_eigene_docker_images_bauen"><a class="anchor" href="#_warum_eigene_docker_images_bauen"></a>1.1. Warum eigene Docker-Images bauen?</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -617,25 +624,209 @@ pre.rouge .hll * {
 </div>
 </li>
 <li>
-<p>Oft ist es aber sinnvoll ein eigenes Image zu bauen.</p>
+<p>Oft ist es aber sinnvoll, ein eigenes Image zu bauen.</p>
 </li>
 <li>
-<p>Man kann so eine Umgebung für seine Applikation vorkonfigurieren.</p>
+<p><strong>Man kann so seine Applikation in einem Image verpacken, um sie überall lauffähig zu machen, ohne sich um die Umgebung kümmern zu müssen.</strong></p>
 </li>
 </ul>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_dockerfile"><a class="anchor" href="#_dockerfile"></a>2. Dockerfile</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_lab"><a class="anchor" href="#_lab"></a>1.2. Lab</h3>
+<div class="sect3">
+<h4 id="_aufgabe_hello_world_image"><a class="anchor" href="#_aufgabe_hello_world_image"></a>1.2.1. Aufgabe: Hello World Image</h4>
 <div class="ulist">
 <ul>
 <li>
-<p>Man benötigt hierzu eine Textdatei mit dem Namen <code>Dockerfile</code> (ohne extension)</p>
+<p>Erstellen Sie ein verzeichnis <code>hello-world</code> und wechseln Sie in dieses Verzeichnis.</p>
 </li>
 <li>
-<p>wie in einem Script kann eine Umgebung für das Programm gebaut werden. Dadurch wird das Image so konfiguriert,  dass am Ende die Applikation im docker-Container laufen wird.</p>
+<p>Erstellen Sie eine Datei <code>hello2.txt</code> mit dem Inhalt "Hello World!".</p>
+</li>
+<li>
+<p>Erstellen Sie ein minimalistisches Dockerfile, das ein Basisimage (<code>ubuntu:latest</code>) verwendet.
+*</p>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> ubuntu:latest</span>
+<span class="k">RUN </span>apt update
+<span class="k">RUN </span>apt dist-upgrade <span class="nt">-y</span>
+<span class="k">RUN </span><span class="nb">echo </span>Hallo <span class="o">&gt;</span> greet.txt
+<span class="k">RUN </span><span class="o">(</span> <span class="nb">.</span> /etc/os-release <span class="p">;</span> <span class="nb">echo</span> <span class="nv">$VERSION_ID</span> <span class="o">)</span>
+<span class="k">RUN </span><span class="nb">ls</span> <span class="nt">-lah</span>
+<span class="k">WORKDIR</span><span class="s"> app2</span>
+<span class="k">RUN </span><span class="nb">ls</span> <span class="nt">-lah</span>
+<span class="k">COPY</span><span class="s"> *.txt .</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="bash">docker build <span class="nt">-t</span> hello-world <span class="nb">.</span>
+docker run <span class="nt">--rm</span> <span class="nt">-it</span> hello-world</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Fragen:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Warum wird dieser Container mit -it (interaktives Terminal) gestartet?</p>
+<details>
+<summary class="title">Antwort</summary>
+<div class="content">
+<div class="paragraph">
+<p>Dieser Container würde ohne -it sofort wieder beendet werden, da kein Kommando ausgeführt wird, das den Container am Leben hält. Mit -it können wir in den Container hineinsehen und interagieren, um die Ausgabe der Befehle zu sehen und zu verstehen, was im Container passiert.</p>
+</div>
+</div>
+</details>
+</li>
+<li>
+<p>Wie kann man sich alle Images ansehen?</p>
+</li>
+<li>
+<p>Wie kann man sich alle Container ansehen?</p>
+</li>
+<li>
+<p>Wie kann man sich die Schichten (Layers) eines Images ansehen?</p>
+<details>
+<summary class="title">Antwort</summary>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre>docker history hello-world</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">result</div>
+<div class="content">
+<pre>IMAGE          CREATED       CREATED BY                                      SIZE      COMMENT
+5cfde82af460   3 hours ago   COPY *.txt . # buildkit                         11B       buildkit.dockerfile.v0
+&lt;missing&gt;      3 hours ago   RUN /bin/sh -c ls -lah # buildkit               0B        buildkit.dockerfile.v0
+&lt;missing&gt;      3 hours ago   WORKDIR /app2                                   0B        buildkit.dockerfile.v0
+&lt;missing&gt;      3 hours ago   RUN /bin/sh -c ls -lah # buildkit               0B        buildkit.dockerfile.v0
+&lt;missing&gt;      3 hours ago   RUN /bin/sh -c ( . /etc/os-release ; echo $V…   0B        buildkit.dockerfile.v0
+&lt;missing&gt;      3 hours ago   RUN /bin/sh -c echo Hallo &gt; greet.txt # buil…   6B        buildkit.dockerfile.v0
+&lt;missing&gt;      3 hours ago   RUN /bin/sh -c apt dist-upgrade -y # buildkit   33.2MB    buildkit.dockerfile.v0
+&lt;missing&gt;      3 hours ago   RUN /bin/sh -c apt update # buildkit            62.2MB    buildkit.dockerfile.v0
+&lt;missing&gt;      3 weeks ago   /bin/sh -c #(nop)  CMD ["/bin/bash"]            0B
+&lt;missing&gt;      3 weeks ago   /bin/sh -c #(nop) ADD file:6089c6bede9eca8ec…   101MB
+&lt;missing&gt;      3 weeks ago   /bin/sh -c #(nop)  LABEL org.opencontainers.…   0B
+&lt;missing&gt;      3 weeks ago   /bin/sh -c #(nop)  LABEL org.opencontainers.…   0B
+&lt;missing&gt;      3 weeks ago   /bin/sh -c #(nop)  ARG LAUNCHPAD_BUILD_ARCH     0B
+&lt;missing&gt;      3 weeks ago   /bin/sh -c #(nop)  ARG RELEASE                  0B</pre>
+</div>
+</div>
+</div>
+</details>
+</li>
+<li>
+<p>Wie kann man die Schichten eines Images reduzieren?</p>
+<details>
+<summary class="title">Antwort</summary>
+<div class="content">
+<div class="paragraph">
+<p>Indem man mehrere RUN-Kommandos mit &amp;&amp; verbindet, um so die Anzahl der Layer zu reduzieren. Es gibt auch andere Möglichkeiten, wie zB das Verwenden von <strong>Multi-Stage Builds</strong>, um unnötige Dateien und Schichten zu vermeiden.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> ubuntu:latest</span>
+<span class="k">RUN </span>apt update <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    apt dist-upgrade <span class="nt">-y</span> <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    <span class="nb">echo </span>Hallo <span class="o">&gt;</span> greet.txt <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    <span class="o">(</span> <span class="nb">.</span> /etc/os-release <span class="p">;</span> <span class="nb">echo </span>Ubuntu <span class="nv">$VERSION</span> <span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    <span class="nb">ls</span> <span class="nt">-lah</span>
+<span class="k">WORKDIR</span><span class="s"> app2</span>
+<span class="k">RUN </span><span class="nb">ls</span> <span class="nt">-lah</span>
+<span class="k">COPY</span><span class="s"> *.txt .</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">result</div>
+<div class="content">
+<pre>IMAGE          CREATED         CREATED BY                                      SIZE      COMMENT
+17b2acc6929b   4 seconds ago   COPY *.txt . # buildkit                         12B       buildkit.dockerfile.v0
+&lt;missing&gt;      4 seconds ago   RUN /bin/sh -c ls -lah # buildkit               0B        buildkit.dockerfile.v0
+&lt;missing&gt;      4 seconds ago   WORKDIR /app2                                   0B        buildkit.dockerfile.v0
+&lt;missing&gt;      4 seconds ago   RUN /bin/sh -c apt update     &amp;&amp; apt dist-up…   95.4MB    buildkit.dockerfile.v0
+&lt;missing&gt;      3 weeks ago     /bin/sh -c #(nop)  CMD ["/bin/bash"]            0B
+&lt;missing&gt;      3 weeks ago     /bin/sh -c #(nop) ADD file:6089c6bede9eca8ec…   101MB
+&lt;missing&gt;      3 weeks ago     /bin/sh -c #(nop)  LABEL org.opencontainers.…   0B
+&lt;missing&gt;      3 weeks ago     /bin/sh -c #(nop)  LABEL org.opencontainers.…   0B
+&lt;missing&gt;      3 weeks ago     /bin/sh -c #(nop)  ARG LAUNCHPAD_BUILD_ARCH     0B
+&lt;missing&gt;      3 weeks ago     /bin/sh -c #(nop)  ARG RELEASE                  0B</pre>
+</div>
+</div>
+</div>
+</details>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_abschließende_bemerkungen"><a class="anchor" href="#_abschließende_bemerkungen"></a>1.2.2. Abschließende Bemerkungen</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Uns fällt auf, dass die <strong>Ausgaben von ls und echo nicht am Bildschirm ausgegeben werden</strong>, sondern in den Layern des Images gespeichert werden.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Das liegt daran, dass jedes RUN-Kommando in einem eigenen Layer ausgeführt wird und die Ausgabe dieses Kommandos in diesem Layer gespeichert wird. Wenn wir also mehrere RUN-Kommandos haben, werden die Ausgaben in den jeweiligen Layern gespeichert und nicht am Bildschirm ausgegeben.</p>
+</li>
+<li>
+<p>Abhilfe schafft hier die Verwendung von <code>--progress=plain --no-cache</code> beim Builden des Images, um die Ausgaben der RUN-Kommandos am Bildschirm zu sehen.</p>
+<div class="listingblock">
+<div class="content">
+<pre>docker build --no-cache \
+             --progress=plain \
+             -f Dockerfile2 \
+             -t hello-world .</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Diese Ausgabe ist besonders hilfreich, um zu verstehen, was in den einzelnen Layern passiert, und um Fehler zu debuggen.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Auch sollte man die Caches löschen, die zB bei der Verwendung von <code>apt</code> entstehen, da diese sonst in den Layern gespeichert werden und das Image unnötig groß machen. Hierfür gibt es mehrere Möglichkeiten, zB <code>apt clean</code> oder <code>rm -rf /var/lib/apt/lists/*</code> am Ende eines RUN-Kommandos, um die Caches zu löschen.</p>
+<div class="listingblock">
+<div class="title">Die optimierte Version des Dockerfiles mit Cache-Bereinigung und einem CMD, damit der Container nicht sofort wieder beendet wird.</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> ubuntu:26.04</span>
+<span class="k">RUN </span>apt update <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> apt dist-upgrade <span class="nt">-y</span> <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> <span class="nb">echo </span>Hallo <span class="o">&gt;</span> greet.txt <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> apt clean <span class="se">\
+</span>    <span class="o">&amp;&amp;</span> <span class="nb">rm</span> <span class="nt">-rf</span> /var/lib/apt/lists/<span class="k">*</span> /tmp/<span class="k">*</span> /var/tmp/<span class="k">*</span>
+<span class="k">WORKDIR</span><span class="s"> /app2</span>
+<span class="k">COPY</span><span class="s"> *.txt .</span>
+<span class="k">CMD</span><span class="s"> ["/bin/bash"]</span></code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Auch wurde das Basisimage von <code>ubuntu:latest</code> auf <code>ubuntu:26.04</code> geändert, um eine festgelegte Version zu verwenden und so die Reproduzierbarkeit des Images zu gewährleisten.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_zusammenfassung"><a class="anchor" href="#_zusammenfassung"></a>1.2.3. Zusammenfassung</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Man benötigt eine Textdatei mit dem Namen <code>Dockerfile</code> (ohne extension). Wird eine andere Datei verwendet, muss diese mit <code>-f</code> angegeben werden, zB <code>docker build -t hello-world -f Dockerfile.dev .</code></p>
+</li>
+<li>
+<p>Wie in einem Script kann eine Umgebung für das Programm gebaut werden. Dadurch wird das Image so konfiguriert, dass am Ende die Applikation im docker-Container laufen wird.</p>
 </li>
 <li>
 <p>Es gibt hierfür mehrere Kommandos, die wir nun kennenlernen werden.</p>
@@ -644,7 +835,7 @@ pre.rouge .hll * {
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/build-image.png" alt="build image" width="844" height="174">
+<img src="images/build-image.png" alt="build image" width="772" height="161">
 </div>
 </div>
 <div class="ulist">
@@ -661,8 +852,10 @@ pre.rouge .hll * {
 </div>
 </div>
 </div>
+</div>
+</div>
 <div class="sect1">
-<h2 id="_from"><a class="anchor" href="#_from"></a>3. FROM</h2>
+<h2 id="_from"><a class="anchor" href="#_from"></a>2. FROM</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
@@ -708,7 +901,7 @@ pre.rouge .hll * {
 </div>
 </div>
 <div class="sect1">
-<h2 id="_beispiel_1"><a class="anchor" href="#_beispiel_1"></a>4. Beispiel 1</h2>
+<h2 id="_beispiel_1"><a class="anchor" href="#_beispiel_1"></a>3. Beispiel 1</h2>
 <div class="sectionbody">
 <div class="listingblock">
 <div class="content">
@@ -765,7 +958,7 @@ pre.rouge .hll * {
 </div>
 </div>
 <div class="sect1">
-<h2 id="_beispiel_2"><a class="anchor" href="#_beispiel_2"></a>5. Beispiel 2</h2>
+<h2 id="_beispiel_2"><a class="anchor" href="#_beispiel_2"></a>4. Beispiel 2</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
@@ -823,7 +1016,7 @@ pre.rouge .hll * {
 </div>
 </div>
 <div class="sect1">
-<h2 id="_beispiel_3"><a class="anchor" href="#_beispiel_3"></a>6. Beispiel 3</h2>
+<h2 id="_beispiel_3"><a class="anchor" href="#_beispiel_3"></a>5. Beispiel 3</h2>
 <div class="sectionbody">
 <div class="listingblock">
 <div class="title">index.html</div>
@@ -882,7 +1075,7 @@ docker run --rm \
 </div>
 </div>
 <div class="sect1">
-<h2 id="_cmd"><a class="anchor" href="#_cmd"></a>7. CMD</h2>
+<h2 id="_cmd"><a class="anchor" href="#_cmd"></a>6. CMD</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
@@ -924,7 +1117,7 @@ docker run --rm \
 <div id="footer">
 <div id="footer-text">
 Version 2.0.0<br>
-Last updated 2026-01-22 18:27:51 UTC
+Last updated 2026-02-08 14:46:50 UTC
 </div>
 </div>
 </body>
