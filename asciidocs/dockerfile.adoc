@@ -185,12 +185,12 @@ CMD ["/bin/bash"]
 
 * Es gibt hierfür mehrere Kommandos, die wir nun kennenlernen werden.
 
-[plantuml,build-image,png]
+[plantuml,build-image,png,theme=sketchy-outline]
 ----
 @startuml
-!theme sketchy-outline
+!theme materia
 cloud "Docker Registry" {
-artifact "Docker\nImage" as img
+    artifact "docker\nImage" as img
 }
 file Dockerfile as dockerfile
 artifact "Docker\nImage" as image
