@@ -1,0 +1,9 @@
+FROM ubuntu:latest
+RUN apt update \
+    && apt dist-upgrade -y \
+    && echo Hallo > greet.txt \
+    && ( . /etc/os-release ; echo Ubuntu $VERSION ) \
+    && ls -lah
+WORKDIR /app2
+RUN ls -lah
+COPY *.txt .

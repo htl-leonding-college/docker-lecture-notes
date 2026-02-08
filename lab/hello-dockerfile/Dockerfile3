@@ -1,0 +1,9 @@
+FROM ubuntu:26.04
+RUN apt update \
+    && apt dist-upgrade -y \
+    && echo Hallo > greet.txt \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+WORKDIR /app2
+COPY *.txt .
+CMD ["/bin/bash"]

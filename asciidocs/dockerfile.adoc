@@ -11,6 +11,9 @@ ifndef::imagesdir[:imagesdir: images]
 :toclevels: 5
 :experimental: true
 :linkattrs:   // so window="_blank" will be executed
+:lang: de
+:author: Thomas W. Stütz
+:email: t.stuetz@htl-leonding.ac.at
 
 //Need this blank line after ifdef, don't know why...
 ifdef::backend-html5[]
@@ -23,29 +26,171 @@ endif::backend-html5[]
 
 == Grundlagen
 
+=== Warum eigene Docker-Images bauen?
+
 * Docker-Images können aus Docker-Registries gepullt werden
 ** https://hub.docker.com/
 ** https://quay.io/search
 ** uvam
 
-* Oft ist es aber sinnvoll ein eigenes Image zu bauen.
+* Oft ist es aber sinnvoll, ein eigenes Image zu bauen.
 
-* Man kann so eine Umgebung für seine Applikation vorkonfigurieren.
+* *Man kann so seine Applikation in einem Image verpacken, um sie überall lauffähig zu machen, ohne sich um die Umgebung kümmern zu müssen.*
 
-== Dockerfile
 
-* Man benötigt hierzu eine Textdatei mit dem Namen `Dockerfile` (ohne extension)
+=== Lab
 
-* wie in einem Script kann eine Umgebung für das Programm gebaut werden. Dadurch wird das Image so konfiguriert,  dass am Ende die Applikation im docker-Container laufen wird.
+==== Aufgabe: Hello World Image
+
+* Erstellen Sie ein verzeichnis `hello-world` und wechseln Sie in dieses Verzeichnis.
+* Erstellen Sie eine Datei `hello2.txt` mit dem Inhalt "Hello World!".
+* Erstellen Sie ein minimalistisches Dockerfile, das ein Basisimage (`ubuntu:latest`) verwendet.
+*
++
+[source,dockerfile]
+----
+FROM ubuntu:latest
+RUN apt update
+RUN apt dist-upgrade -y
+RUN echo Hallo > greet.txt
+RUN ( . /etc/os-release ; echo $VERSION_ID )
+RUN ls -lah
+WORKDIR app2
+RUN ls -lah
+COPY *.txt .
+----
++
+[source,bash]
+----
+docker build -t hello-world .
+docker run --rm -it hello-world
+----
+
+* Fragen:
+** Warum wird dieser Container mit -it (interaktives Terminal) gestartet?
++
+.Antwort
+[%collapsible]
+====
+Dieser Container würde ohne -it sofort wieder beendet werden, da kein Kommando ausgeführt wird, das den Container am Leben hält. Mit -it können wir in den Container hineinsehen und interagieren, um die Ausgabe der Befehle zu sehen und zu verstehen, was im Container passiert.
+====
+** Wie kann man sich alle Images ansehen?
+** Wie kann man sich alle Container ansehen?
+** Wie kann man sich die Schichten (Layers) eines Images ansehen?
++
+.Antwort
+[%collapsible]
+====
+----
+docker history hello-world
+----
+
+.result
+----
+IMAGE          CREATED       CREATED BY                                      SIZE      COMMENT
+5cfde82af460   3 hours ago   COPY *.txt . # buildkit                         11B       buildkit.dockerfile.v0
+<missing>      3 hours ago   RUN /bin/sh -c ls -lah # buildkit               0B        buildkit.dockerfile.v0
+<missing>      3 hours ago   WORKDIR /app2                                   0B        buildkit.dockerfile.v0
+<missing>      3 hours ago   RUN /bin/sh -c ls -lah # buildkit               0B        buildkit.dockerfile.v0
+<missing>      3 hours ago   RUN /bin/sh -c ( . /etc/os-release ; echo $V…   0B        buildkit.dockerfile.v0
+<missing>      3 hours ago   RUN /bin/sh -c echo Hallo > greet.txt # buil…   6B        buildkit.dockerfile.v0
+<missing>      3 hours ago   RUN /bin/sh -c apt dist-upgrade -y # buildkit   33.2MB    buildkit.dockerfile.v0
+<missing>      3 hours ago   RUN /bin/sh -c apt update # buildkit            62.2MB    buildkit.dockerfile.v0
+<missing>      3 weeks ago   /bin/sh -c #(nop)  CMD ["/bin/bash"]            0B
+<missing>      3 weeks ago   /bin/sh -c #(nop) ADD file:6089c6bede9eca8ec…   101MB
+<missing>      3 weeks ago   /bin/sh -c #(nop)  LABEL org.opencontainers.…   0B
+<missing>      3 weeks ago   /bin/sh -c #(nop)  LABEL org.opencontainers.…   0B
+<missing>      3 weeks ago   /bin/sh -c #(nop)  ARG LAUNCHPAD_BUILD_ARCH     0B
+<missing>      3 weeks ago   /bin/sh -c #(nop)  ARG RELEASE                  0B
+----
+====
+
+** Wie kann man die Schichten eines Images reduzieren?
++
+.Antwort
+[%collapsible]
+====
+Indem man mehrere RUN-Kommandos mit && verbindet, um so die Anzahl der Layer zu reduzieren. Es gibt auch andere Möglichkeiten, wie zB das Verwenden von *Multi-Stage Builds*, um unnötige Dateien und Schichten zu vermeiden.
+
+[source,dockerfile]
+----
+FROM ubuntu:latest
+RUN apt update && \
+    apt dist-upgrade -y && \
+    echo Hallo > greet.txt && \
+    ( . /etc/os-release ; echo Ubuntu $VERSION ) && \
+    ls -lah
+WORKDIR app2
+RUN ls -lah
+COPY *.txt .
+
+
+----
+
+.result
+----
+IMAGE          CREATED         CREATED BY                                      SIZE      COMMENT
+17b2acc6929b   4 seconds ago   COPY *.txt . # buildkit                         12B       buildkit.dockerfile.v0
+<missing>      4 seconds ago   RUN /bin/sh -c ls -lah # buildkit               0B        buildkit.dockerfile.v0
+<missing>      4 seconds ago   WORKDIR /app2                                   0B        buildkit.dockerfile.v0
+<missing>      4 seconds ago   RUN /bin/sh -c apt update     && apt dist-up…   95.4MB    buildkit.dockerfile.v0
+<missing>      3 weeks ago     /bin/sh -c #(nop)  CMD ["/bin/bash"]            0B
+<missing>      3 weeks ago     /bin/sh -c #(nop) ADD file:6089c6bede9eca8ec…   101MB
+<missing>      3 weeks ago     /bin/sh -c #(nop)  LABEL org.opencontainers.…   0B
+<missing>      3 weeks ago     /bin/sh -c #(nop)  LABEL org.opencontainers.…   0B
+<missing>      3 weeks ago     /bin/sh -c #(nop)  ARG LAUNCHPAD_BUILD_ARCH     0B
+<missing>      3 weeks ago     /bin/sh -c #(nop)  ARG RELEASE                  0B
+----
+====
+
+==== Abschließende Bemerkungen
+
+* Uns fällt auf, dass die *Ausgaben von ls und echo nicht am Bildschirm ausgegeben werden*, sondern in den Layern des Images gespeichert werden.
+** Das liegt daran, dass jedes RUN-Kommando in einem eigenen Layer ausgeführt wird und die Ausgabe dieses Kommandos in diesem Layer gespeichert wird. Wenn wir also mehrere RUN-Kommandos haben, werden die Ausgaben in den jeweiligen Layern gespeichert und nicht am Bildschirm ausgegeben.
+** Abhilfe schafft hier die Verwendung von `--progress=plain --no-cache` beim Builden des Images, um die Ausgaben der RUN-Kommandos am Bildschirm zu sehen.
++
+----
+docker build --no-cache \
+             --progress=plain \
+             -f Dockerfile2 \
+             -t hello-world .
+----
+
+** Diese Ausgabe ist besonders hilfreich, um zu verstehen, was in den einzelnen Layern passiert, und um Fehler zu debuggen.
+
+* Auch sollte man die Caches löschen, die zB bei der Verwendung von `apt` entstehen, da diese sonst in den Layern gespeichert werden und das Image unnötig groß machen. Hierfür gibt es mehrere Möglichkeiten, zB `apt clean` oder `rm -rf /var/lib/apt/lists/*` am Ende eines RUN-Kommandos, um die Caches zu löschen.
++
+.Die optimierte Version des Dockerfiles mit Cache-Bereinigung und einem CMD, damit der Container nicht sofort wieder beendet wird.
+[source,dockerfile]
+----
+FROM ubuntu:26.04
+RUN apt update \
+    && apt dist-upgrade -y \
+    && echo Hallo > greet.txt \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+WORKDIR /app2
+COPY *.txt .
+CMD ["/bin/bash"]
+
+----
+
+* Auch wurde das Basisimage von `ubuntu:latest` auf `ubuntu:26.04` geändert, um eine festgelegte Version zu verwenden und so die Reproduzierbarkeit des Images zu gewährleisten.
+
+==== Zusammenfassung
+
+* Man benötigt eine Textdatei mit dem Namen `Dockerfile` (ohne extension). Wird eine andere Datei verwendet, muss diese mit `-f` angegeben werden, zB `docker build -t hello-world -f Dockerfile.dev .`
+
+* Wie in einem Script kann eine Umgebung für das Programm gebaut werden. Dadurch wird das Image so konfiguriert, dass am Ende die Applikation im docker-Container laufen wird.
 
 * Es gibt hierfür mehrere Kommandos, die wir nun kennenlernen werden.
 
-[plantuml,build-image,png,theme=sketchy-outline]
+[plantuml,build-image,png]
 ----
 @startuml
-!theme materia
+!theme sketchy-outline
 cloud "Docker Registry" {
-artifact "docker\nImage" as img
+artifact "Docker\nImage" as img
 }
 file Dockerfile as dockerfile
 artifact "Docker\nImage" as image
@@ -63,6 +208,16 @@ image -> container: docker run
 
 
 image::dockerfile-kommandos.png[]
+
+
+
+
+
+
+
+
+
+
 
 
 == FROM
@@ -245,4 +400,3 @@ CMD ["tail", "-f", "/dev/null"]
 ----
 
 * Dieses Kommando verhindert, dass der Docker Container beendet wird.
-
