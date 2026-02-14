@@ -185,12 +185,12 @@ CMD ["/bin/bash"]
 
 * Es gibt hierfür mehrere Kommandos, die wir nun kennenlernen werden.
 
-[plantuml,build-image,png,theme=sketchy-outline]
+[plantuml,build-image,svg,theme=sketchy-outline]
 ----
 @startuml
 !theme materia
 cloud "Docker Registry" {
-    artifact "docker\nImage" as img
+    artifact "Docker\nBasis-Image" as img
 }
 file Dockerfile as dockerfile
 artifact "Docker\nImage" as image
@@ -207,9 +207,48 @@ image -> container: docker run
 
 
 
-image::dockerfile-kommandos.png[]
+//image::dockerfile-kommandos.png[]
 
+[cols="1,2", options="header"]
+|===
+| Keyword | Meaning
 
+| ADD
+| Copies files to the file system of the image
+
+| CMD
+| Executes the specified command at container startup
+
+| COPY
+| Copies files from the project directory to the image
+
+| ENTRYPOINT
+| Always executes the specified command at container startup
+
+| ENV
+| Sets an environment variable
+
+| EXPOSE
+| Specifies the active ports of the container
+
+| FROM
+| Specifies the base image
+
+| LABEL
+| Sets a character string
+
+| RUN
+| Executes the specified command
+
+| USER
+| Specifies the account for RUN, CMD and ENTRYPOINT
+
+| VOLUME
+| Specifies volume directories
+
+|WORKDIR
+|Sets the working directory for RUN, CMD, COPY, etc.
+|===
 
 
 
