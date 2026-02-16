@@ -33,12 +33,12 @@ This page is still under construction
 
 
 
-== Docker - Grundlagen
+== Docker - Grundlagen - Running a Container
 
 <<docker.adoc#bookmark-document-start,Docker>>
 
 
-== Build a Docker Container
+== Create a Docker Image
 
 <<dockerfile.adoc#_create_a_docker_image,Create a Docker image>>
 
