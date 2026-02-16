@@ -542,7 +542,7 @@ image::docker-build-context.png[]
 
 . Erstellen Sie ein java-Programm, das durch environment-Variablen konfiguriert wird:
 
-** Je nachdem welchen Wert die ENV-Variable `APP_COLOR` hat, soll die Ausgabe in einer anderen Farbe erfolgen (zB rot, grün, gelb, blau). Wenn die Variable nicht gesetzt ist, soll die Ausgabe in der Standardfarbe erfolgen.
+** Je nachdem welchen Wert die ENV-Variable `APP_COLOR` hat, soll die Ausgabe in dieser Farbe erfolgen (zB rot, grün, gelb, blau). Wenn die Variable nicht gesetzt ist, soll die Ausgabe ohne Farbgebung erfolgen.
 +
 image::lab-1020-java-result.png[]
 +
@@ -623,6 +623,9 @@ docker build -t my-java-env-test:1.0 .
 ----
 docker run --rm --name java-env-test  my-java-env-test:1.0
 ----
++
+image::lab-1020-java-result-2.png[]
+
 
 . Überschreiben Sie die Farbe beim Starten des Containers, indem Sie die Umgebungsvariable `APP_COLOR` auf "GREEN" setzen.
 +
@@ -633,3 +636,6 @@ docker run --rm \
            -e APP_COLOR=GREEN \
            my-java-env-test:1.0
 ----
++
+image::lab-1020-java-result-3.png[]
+
