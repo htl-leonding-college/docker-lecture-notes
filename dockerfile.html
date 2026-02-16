@@ -1518,6 +1518,37 @@ echo "Hello, World!"</pre>
 <span class="o">}</span></code></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>oder</p>
+</div>
+<div class="listingblock">
+<div class="title">src/Main.java</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java"><span class="kt">void</span> <span class="nf">main</span><span class="o">()</span> <span class="o">{</span>
+    <span class="c1">// Holen der Variable (Optional zur Sicherheit, falls null)</span>
+    <span class="nc">String</span> <span class="n">colorEnv</span> <span class="o">=</span> <span class="nc">System</span><span class="o">.</span><span class="na">getenv</span><span class="o">(</span><span class="s">"APP_COLOR"</span><span class="o">);</span>
+
+    <span class="c1">// Der Switch als Expression: Kompakt, sicher und liest sich fast wie Prosa</span>
+    <span class="nc">String</span> <span class="n">colorCode</span> <span class="o">=</span> <span class="k">switch</span> <span class="o">(</span><span class="n">colorEnv</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">case</span> <span class="kc">null</span> <span class="o">-&gt;</span> <span class="s">"\u001B[0m"</span><span class="o">;</span>
+        <span class="k">case</span> <span class="nc">String</span> <span class="n">s</span> <span class="n">when</span> <span class="n">s</span><span class="o">.</span><span class="na">equalsIgnoreCase</span><span class="o">(</span><span class="s">"RED"</span><span class="o">)</span>    <span class="o">-&gt;</span> <span class="s">"\u001B[41m"</span><span class="o">;</span>
+        <span class="k">case</span> <span class="nc">String</span> <span class="n">s</span> <span class="n">when</span> <span class="n">s</span><span class="o">.</span><span class="na">equalsIgnoreCase</span><span class="o">(</span><span class="s">"GREEN"</span><span class="o">)</span>  <span class="o">-&gt;</span> <span class="s">"\u001B[42m"</span><span class="o">;</span>
+        <span class="k">case</span> <span class="nc">String</span> <span class="n">s</span> <span class="n">when</span> <span class="n">s</span><span class="o">.</span><span class="na">equalsIgnoreCase</span><span class="o">(</span><span class="s">"YELLOW"</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="s">"\u001B[43m"</span><span class="o">;</span>
+        <span class="k">case</span> <span class="nc">String</span> <span class="n">s</span> <span class="n">when</span> <span class="n">s</span><span class="o">.</span><span class="na">equalsIgnoreCase</span><span class="o">(</span><span class="s">"BLUE"</span><span class="o">)</span>   <span class="o">-&gt;</span> <span class="s">"\u001B[44m"</span><span class="o">;</span>
+        <span class="k">default</span> <span class="o">-&gt;</span> <span class="s">"\u001B[0m"</span><span class="o">;</span>
+    <span class="o">};</span>
+
+    <span class="nc">String</span> <span class="n">displayEnv</span> <span class="o">=</span> <span class="o">(</span><span class="n">colorEnv</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">?</span> <span class="s">"Standard"</span> <span class="o">:</span> <span class="n">colorEnv</span><span class="o">;</span>
+
+    <span class="no">IO</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="sh">"""
+        %s                                         \u001B[0m
+        %s    HALLO AUS DER JAVA-DOCKER-WELT!      \u001B[0m
+        %s    Farbe aus ENV: %-20s  \u001B[0m
+        %s                                         \u001B[0m
+        """</span><span class="o">.</span><span class="na">formatted</span><span class="o">(</span><span class="n">colorCode</span><span class="o">,</span> <span class="n">colorCode</span><span class="o">,</span> <span class="n">colorCode</span><span class="o">,</span> <span class="n">displayEnv</span><span class="o">,</span> <span class="n">colorCode</span><span class="o">));</span>
+<span class="o">}</span></code></pre>
+</div>
+</div>
 </div>
 </details>
 </li>
@@ -1601,7 +1632,7 @@ Auch hier ersparen wir uns das Kompilieren, da es sich um eine Einklassen-Java-A
 <div id="footer">
 <div id="footer-text">
 Version 2.0.0<br>
-Last updated 2026-02-16 13:43:06 UTC
+Last updated 2026-02-16 13:50:44 UTC
 </div>
 </div>
 </body>
