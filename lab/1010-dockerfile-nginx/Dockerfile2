@@ -1,0 +1,8 @@
+FROM nginx:1.29-alpine3.23-slim
+
+LABEL maintainer="Max Mustermann <max@example.com>"
+
+COPY index.html /usr/share/nginx/html/index.html
+
+EXPOSE 80
+ENTRYPOINT ["/usr/sbin/nginx", "-g", "daemon off;"]

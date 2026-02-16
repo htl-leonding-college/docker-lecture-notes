@@ -9,6 +9,13 @@ ifndef::imagesdir[:imagesdir: images]
 :sectnumlevels: 5
 :toc: left
 :toclevels: 5
+:docinfo: shared
+:source-highlighter: highlightjs
+:highlightjs-theme: github
+++++
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+++++
 :experimental: true
 :linkattrs:   // so window="_blank" will be executed
 :lang: de
@@ -38,7 +45,7 @@ endif::backend-html5[]
 * *Man kann so seine Applikation in einem Image verpacken, um sie überall lauffähig zu machen, ohne sich um die Umgebung kümmern zu müssen.*
 
 
-=== Lab
+=== Labs
 
 ==== Aufgabe: Hello World Image
 
@@ -177,7 +184,7 @@ CMD ["/bin/bash"]
 
 * Auch wurde das Basisimage von `ubuntu:latest` auf `ubuntu:26.04` geändert, um eine festgelegte Version zu verwenden und so die Reproduzierbarkeit des Images zu gewährleisten.
 
-==== Zusammenfassung
+=== Zusammenfassung
 
 * Man benötigt eine Textdatei mit dem Namen `Dockerfile` (ohne extension). Wird eine andere Datei verwendet, muss diese mit `-f` angegeben werden, zB `docker build -t hello-world -f Dockerfile.dev .`
 
@@ -205,7 +212,7 @@ image -> container: docker run
 
 * Jedes Kommando ist ein eigener Layer, daher werden RUN - Kommandos oft mit && verbunden, um die Anzahl der Layer zu reduzieren. -> https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#minimize-the-number-of-layers[Minimize the number of layers^]
 
-
+== Important Dockerfile Keywords
 
 //image::dockerfile-kommandos.png[]
 
@@ -250,16 +257,7 @@ image -> container: docker run
 |Sets the working directory for RUN, CMD, COPY, etc.
 |===
 
-
-
-
-
-
-
-
-
-
-== FROM
+=== FROM
 
 * Zum Auswählen des 'Base Images*
 * Man kann hierfür ein Betriebssystem wählen zB u buntu, alpine oder bereits mit einer Applikation, wie zB nginx, mariadb, postgres, node, ...
@@ -276,45 +274,73 @@ FROM [--platform=<platform>] <image>[:<tag>] [AS <name>]
 .Mögliche Verwendung von FROM
 [source,dockerfile]
 ----
-FROM openjdk:20-jdk
-FROM --platform=linux/arm64 20-jdk
-FROM openjdk:latest
-FROM openjdk:20-jdk
+FROM debian:13-jdk
+FROM --platform=linux/arm64 debian:13-slim
+FROM debian:latest
 FROM --platform=linux/arm64 eclipse-temurin:20-jammy
 ----
 
-.HelloWorld.java
+INFO: openjdk ist bereits deprecated und kann nicht mehr verwendet werden
+
+
+
+=== Labs
+
+==== Aufgabe: Java-Programm ausführen
+
+. Erstelle folgendes File in einem neuen Folder:
++
+.src/HelloWorld.java
 [source,java]
 ----
-public class HelloWorld {
-    public static void main(String[] args) {
-        System.out.println("Hello world!");
-    }
+void main() {
+   IO.println("Hello World!");
 }
 ----
++
+IMPORTANT: Wir benutzen Java 25+ und keine historischen Java-Versionen.
 
-
-== Beispiel 1
-[source,dockerfile]
-----
-FROM openjdk:latest # <.>
-COPY ./src .  # <.>
-RUN javac HelloWorld.java # <.>
-CMD java HelloWorld # <.>
-----
-
-<.> Nur beim Entwickeln `:latest` verwenden
-<.> Kopiert alle Files from Ordner ./src in den aktuellen Ordner im Image (root)
-<.> RUN führt ein Kommando aus
-<.> CMD ist der eine Befehl, weswegen der Container gestartet wird.
-
-.Bauen des Images
+** Ausführen in der Shell:
++
 [source,shell]
 ----
- docker build -t hello-world .
+java HelloWorld.java
+----
+oder
++
+[source,shell]
+----
+javac HelloWorld.java
+java HelloWorld
 ----
 
-.Starten des Containers
+. Erstellen eines Dockerfiles
++
+[source,dockerfile]
+----
+FROM debian:latest # <.>
+RUN apt update && apt install -y openjdk-25-jdk # <.>
+COPY ./src . # <.>
+RUN java -version # <.>
+RUN javac HelloWorld.java # <.>
+CMD ["java", "HelloWorld"] # <.>
+----
+<.> Nur beim Entwickeln `:latest` verwenden
+<.> Installiert das JDK 25
+<.> Kopiert alle Files from Ordner ./src in den aktuellen Ordner im Image (root)
+<.> Gibt die Java-Version aus (zur Ausgabe auf der Console verwenden wir `--no-cache --progress=plain`)
+<.> kompilieren des Java-Quellcodes
+<.> CMD ist der eine Befehl, weswegen der Container gestartet wird.
+
+. Bauen des Images
++
+[source,shell]
+----
+docker build --no-cache --progress=plain -t hello-world .
+----
+
+. Starten des Containers
++
 [source,shell]
 ----
 docker run --name hello-world hello-world:latest
@@ -332,23 +358,24 @@ docker container ls -a
 docker container rm hello-world
 ----
 
-== Beispiel 2
+==== Verwendung eines kleineren Images
 
-* Es wird nur das image gewechselt -> Java auf Ubuntu
+* Es wird nur das image gewechselt -> eclipse-temurin:25-alpine, da dieses bereits das JDK 25 enthält und somit die Installation des JDKs im Dockerfile entfällt. Außerdem ist alpine ein sehr kleines Image, was die Größe des finalen Images reduziert.
 
 [source,dockerfile]
 ----
-FROM eclipse-temurin:20-jammy
+FROM eclipse-temurin:25-jdk-alpine-3.23 # <.>
 COPY ./src .
-RUN javac HelloWorld.java
-CMD java HelloWorld
+CMD ["java", "HelloWorld.java"] # <.>
 ----
 
-* Nun ist genau festgelegt
-** welches JDK verwendet wird -> temurin 20
-** welches OS verwendet wird -> Ubuntu 22.04 LTS Jammy Jellyfish
+<.> Nun ist genau festgelegt
+** welches JDK verwendet wird -> JDK 25 von https://adoptium.net/[Eclipse Temurin^]
+** welches OS verwendet wird -> https://www.alpinelinux.org/about/[Alpine Linux 3.23^], welches sehr klein ist und somit die Größe des finalen Images reduziert
 
+<.> Man muss eine Einklassen-Java-Applikation nicht (mehr) kompilieren, um lauffähig zu sein.
 
+IMPORTANT: Das Bauen des Images ist sehr schnell, da nur der letzte Layer geändert wurde, da die vorherigen Layer gecached werden. Das ist ein großer Vorteil von Docker, da man so schnell Änderungen am Image vornehmen und testen kann, ohne jedes Mal das gesamte Image neu bauen zu müssen.
 
 .Bauen des Images
 [source,shell]
@@ -359,16 +386,21 @@ CMD java HelloWorld
 .Starten des Containers
 [source,shell]
 ----
-docker run --rm \  # <.>
-           --name hello-world hello-world:latest
+docker run --rm \ # <.>
+           --name hello-world \
+           hello-world:latest
 ----
 
 <.> rm ... remove -> der gestoppte Container wird automatisch gelöscht
 
 
 
-== Beispiel 3
+==== Webseiten am nginx publishen
 
+* Aufgabe:
+
+** Erstellen Sie ein docker image, das untenstehende Webseite mit nginx hostet.
++
 .index.html
 [source,html]
 ----
@@ -390,16 +422,24 @@ docker run --rm \  # <.>
 </html>
 ----
 
+** Nennen Sie das Image `my-webserver` mit der Version `v1.0`.
+
+** Starten Sie den Webserver am Port 8080
+
+.Lösung
+[%collapsible]
+====
+
+
 .Dockerfile
 [source,dockerfile]
 ----
-FROM ubuntu:22.04
+FROM debian:trixie-slim
 
-MAINTAINER stuetz
+LABEL maintainer="Max Mustermann <max@example.com>"
 
-RUN apt update
-RUN apt install -y nginx
-COPY index.html /var/www/html/index.nginx-debian.html
+RUN apt update && RUN apt install -y nginx
+COPY index.html /var/www/html/index.html
 
 EXPOSE 80
 ENTRYPOINT ["/usr/sbin/nginx", "-g", "daemon off;"]
@@ -417,8 +457,24 @@ docker run --rm \
 
 * Man würde eher ein fertiges nginx-image verwenden, als es zu bauen.
 
+.Dockerfile
+[source,dockerfile]
+----
+FROM nginx:1.29-alpine3.23-slim
 
-== CMD
+LABEL maintainer="Max Mustermann <max@example.com>"
+
+COPY index.html /var/www/html/index.html
+
+EXPOSE 80
+ENTRYPOINT ["/usr/sbin/nginx", "-g", "daemon off;"]
+----
+
+IMPORTANT: Beachte, dass geänderte html-Verzeichnis. siehe auch https://betterstack.com/community/questions/what-is-default-public-www-location-in-nginx/[Nginx Default Public Www Location?^]
+
+====
+
+=== CMD
 
 
 * Jeder Docker Container führt nur EIN Kommando aus:
@@ -439,3 +495,141 @@ CMD ["tail", "-f", "/dev/null"]
 ----
 
 * Dieses Kommando verhindert, dass der Docker Container beendet wird.
+
+
+----
+# Beispiel für einen Shell-Befehl
+echo "Hello, World!"
+----
+
+
+=== Labs
+
+==== Aufgabe: CMD vs. ENTRYPOINT
+
+* Experimentieren Sie mit `CMD` und `ENTRYPOINT` und deren Zusammenspiel. Erstellen Sie ein Dockerfile, das die Unterschiede demonstriert.
+
+== Docker Build Context
+
+* `WORKDIR`: Festlegen des Arbeitsverzeichnisses
+* `COPY`: Kopieren von Dateien und Verzeichnissen
+* `ADD`: Erweiterte Kopierfunktionen (URLs, automatische Entpackung)
+* Der `.dockerignore`-File: Ausschließen von Dateien aus dem Build-Kontext
+
+image::docker-build-context.png[]
+
+=== Labs
+
+==== Python/Node.js Anwendung
+* Erstellen Sie ein Dockerfile, das eine kleine Python- oder Node.js-Anwendung in das Image kopiert und ausführt.
+
+==== COPY vs. ADD
+* Demonstrieren Sie den Unterschied zwischen `COPY` und `ADD` (z.B. mit TAR-Archiven oder URLs bei `ADD`).
+
+==== .dockerignore
+
+* Fügen Sie eine `.dockerignore`-Datei hinzu, um bestimmte Dateien vom Build-Kontext auszuschließen (z.B. `.git`, `node_modules`). Zeigen Sie, dass diese Dateien nicht im Image landen.
+
+
+== Umgebungsvariablen und Ports
+
+* `ENV`: Definieren von Umgebungsvariablen
+* `EXPOSE`: Dokumentation von exposed Ports
+
+=== Labs
+
+==== Konfigurierbare Anwendung
+
+. Erstellen Sie ein java-Programm, das durch environment-Variablen konfiguriert wird:
+
+** Je nachdem welchen Wert die ENV-Variable `APP_COLOR` hat, soll die Ausgabe in einer anderen Farbe erfolgen (zB rot, grün, gelb, blau). Wenn die Variable nicht gesetzt ist, soll die Ausgabe in der Standardfarbe erfolgen.
++
+image::lab-1020-java-result.png[]
++
+.Lösung
+[%collapsible]
+====
+
+.src/Main.java
+[source,java]
+----
+void main(String[] args) {
+    // Direkter Zugriff auf die Docker-Umgebungsvariable
+    String colorEnv = System.getenv("APP_COLOR");
+
+    String colorCode;
+    if (colorEnv == null) {
+        colorCode = "\u001B[0m"; // Reset
+    } else {
+        switch (colorEnv.toUpperCase()) {
+            case "RED":
+                colorCode = "\u001B[41m";
+                break;
+            case "GREEN":
+                colorCode = "\u001B[42m";
+                break;
+            case "YELLOW":
+                colorCode = "\u001B[43m";
+                break;
+            case "BLUE":
+                colorCode = "\u001B[44m";
+                break;
+            default:
+                colorCode = "\u001B[0m";
+        }
+    }
+
+    IO.println(colorCode + "                                         " + "\u001B[0m");
+    IO.println(colorCode + "    HALLO AUS DER JAVA-DOCKER-WELT!      " + "\u001B[0m");
+    IO.println(colorCode + "    Farbe aus ENV: " + (colorEnv != null ? colorEnv : "Standard") + " ".repeat(22-colorEnv.length()) + "\u001B[0m");
+    IO.println(colorCode + "                                         " + "\u001B[0m");
+
+}
+----
+====
+
+. Erstellen sie ein Dockerfile, das dieses Java-Programm in ein Image packt und die Umgebungsvariable `APP_COLOR` auf "RED" setzt.
++
+.Lösung
+[%collapsible]
+====
+
+.Dockerfile
+[source,dockerfile]
+----
+FROM eclipse-temurin:25-jdk-alpine-3.23
+COPY src/Main.java /app/Main.java
+WORKDIR /app
+ENV APP_COLOR=BLUE
+CMD ["java", "Main.java"]
+----
+
+NOTE: Auch hier ersparen wir uns das Kompilieren, da es sich um eine Einklassen-Java-Applikation handelt. Bei komplexeren Java-Anwendungen würde man natürlich den Quellcode kompilieren und die .class-Dateien oder das .jar-File in das Image kopieren.
+
+====
+
+. Bauen Sie das Image
++
+[source,shell]
+----
+docker build -t my-java-env-test:1.0 .
+----
+
+
+
+. Starten Sie den Container
++
+[source,shell]
+----
+docker run --rm --name java-env-test  my-java-env-test:1.0
+----
+
+. Überschreiben Sie die Farbe beim Starten des Containers, indem Sie die Umgebungsvariable `APP_COLOR` auf "GREEN" setzen.
++
+[source,shell]
+----
+docker run --rm \
+           --name java-env-test \
+           -e APP_COLOR=GREEN \
+           my-java-env-test:1.0
+----
