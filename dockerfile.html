@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -555,20 +555,83 @@ pre.rouge .gs {
 }
 </style>
 <style>
-pre.rouge .hll {
-  background-color: #ffc;
-}
-pre.rouge .hll * {
-  background-color: initial;
-}
+    /* Positionierung des Buttons */
+    .listingblock {
+        position: relative;
+    }
+    .copy-button {
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 10;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        color: #fff;
+        background-color: #555;
+        border: none;
+        border-radius: 0 0 0 4px;
+        cursor: pointer;
+        opacity: 0.6;
+        transition: opacity 0.2s;
+    }
+    .copy-button:hover {
+        opacity: 1;
+        background-color: #333;
+    }
+    .copy-button.clicked {
+        background-color: #28a745;
+    }
 </style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Alle Code-Blöcke finden
+        var blocks = document.querySelectorAll('.listingblock');
+
+        blocks.forEach(function(block) {
+            // Den eigentlichen Code-Container finden (pre)
+            var pre = block.querySelector('pre');
+            if (!pre) return;
+
+            // Button erstellen
+            var button = document.createElement('button');
+            button.className = 'copy-button';
+            button.innerText = 'Copy';
+
+            // Klick-Event
+            button.addEventListener('click', function() {
+                // Text holen (innerText ignoriert HTML-Tags vom Syntax-Highlighting)
+                var code = pre.innerText;
+
+                // Leerzeichen nach einem Backslash am Zeilenende entfernen
+                code = code.replace(/\\([ \t\u00A0]+)$/gm, '\\');
+
+                // In Zwischenablage kopieren
+                navigator.clipboard.writeText(code).then(function() {
+                    // Feedback geben
+                    var originalText = button.innerText;
+                    button.innerText = 'Copied!';
+                    button.classList.add('clicked');
+
+                    setTimeout(function() {
+                        button.innerText = originalText;
+                        button.classList.remove('clicked');
+                    }, 2000);
+                }, function(err) {
+                    console.error('Could not copy text: ', err);
+                });
+            });
+
+            block.appendChild(button);
+        });
+    });
+</script>
 </head>
 <body class="article toc2 toc-left">
 <div id="header">
 <h1>Create a Docker Image</h1>
 <div class="details">
 <span id="author" class="author">Thomas W. Stütz</span><br>
-<span id="email" class="email"><a href="mailto:t.stuetz@htl-leonding.ac.at">t.stuetz@htl-leonding.ac.at</a></span><br>
 <span id="revnumber">version 2.0.0,</span>
 <span id="revdate">2023-04-08</span>
 <br><span id="revremark">How to use docker in project work @ HTL Leonding college</span>
@@ -579,20 +642,36 @@ pre.rouge .hll * {
 <li><a href="#_grundlagen">1. Grundlagen</a>
 <ul class="sectlevel2">
 <li><a href="#_warum_eigene_docker_images_bauen">1.1. Warum eigene Docker-Images bauen?</a></li>
-<li><a href="#_lab">1.2. Lab</a></li>
+<li><a href="#_labs">1.2. Labs</a></li>
+<li><a href="#_zusammenfassung">1.3. Zusammenfassung</a></li>
 </ul>
 </li>
-<li><a href="#_from">2. FROM</a></li>
-<li><a href="#_beispiel_1">3. Beispiel 1</a></li>
-<li><a href="#_beispiel_2">4. Beispiel 2</a></li>
-<li><a href="#_beispiel_3">5. Beispiel 3</a></li>
-<li><a href="#_cmd">6. CMD</a></li>
+<li><a href="#_important_dockerfile_keywords">2. Important Dockerfile Keywords</a>
+<ul class="sectlevel2">
+<li><a href="#_from">2.1. FROM</a></li>
+<li><a href="#_labs_2">2.2. Labs</a></li>
+<li><a href="#_cmd">2.3. CMD</a></li>
+<li><a href="#_labs_3">2.4. Labs</a></li>
+</ul>
+</li>
+<li><a href="#_docker_build_context">3. Docker Build Context</a>
+<ul class="sectlevel2">
+<li><a href="#_labs_4">3.1. Labs</a></li>
+</ul>
+</li>
+<li><a href="#_umgebungsvariablen_und_ports">4. Umgebungsvariablen und Ports</a>
+<ul class="sectlevel2">
+<li><a href="#_labs_5">4.1. Labs</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div id="preamble">
 <div class="sectionbody">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
 <div class="paragraph">
 <p><span class="icon"><a class="image" href="https://raw.githubusercontent.com/htl-leonding-college/docker-lecture-notes/main/asciidocs/dockerfile.adoc"><i class="fa fa-file-text-o"></i></a></span> ‏ ‏ ‎
 <span class="icon"><a class="image" href="https://github.com/htl-leonding-college/docker-lecture-notes"><i class="fa fa-github-square"></i></a></span> ‏ ‏ ‎
@@ -633,7 +712,7 @@ pre.rouge .hll * {
 </div>
 </div>
 <div class="sect2">
-<h3 id="_lab"><a class="anchor" href="#_lab"></a>1.2. Lab</h3>
+<h3 id="_labs"><a class="anchor" href="#_labs"></a>1.2. Labs</h3>
 <div class="sect3">
 <h4 id="_aufgabe_hello_world_image"><a class="anchor" href="#_aufgabe_hello_world_image"></a>1.2.1. Aufgabe: Hello World Image</h4>
 <div class="ulist">
@@ -818,8 +897,9 @@ docker run <span class="nt">--rm</span> <span class="nt">-it</span> hello-world<
 </ul>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_zusammenfassung"><a class="anchor" href="#_zusammenfassung"></a>1.2.3. Zusammenfassung</h4>
+</div>
+<div class="sect2">
+<h3 id="_zusammenfassung"><a class="anchor" href="#_zusammenfassung"></a>1.3. Zusammenfassung</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -845,6 +925,12 @@ docker run <span class="nt">--rm</span> <span class="nt">-it</span> hello-world<
 </li>
 </ul>
 </div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_important_dockerfile_keywords"><a class="anchor" href="#_important_dockerfile_keywords"></a>2. Important Dockerfile Keywords</h2>
+<div class="sectionbody">
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -907,13 +993,8 @@ docker run <span class="nt">--rm</span> <span class="nt">-it</span> hello-world<
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_from"><a class="anchor" href="#_from"></a>2. FROM</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_from"><a class="anchor" href="#_from"></a>2.1. FROM</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -938,34 +1019,76 @@ docker run <span class="nt">--rm</span> <span class="nt">-it</span> hello-world<
 <div class="listingblock">
 <div class="title">Mögliche Verwendung von FROM</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> openjdk:20-jdk</span>
-<span class="k">FROM</span><span class="s"> --platform=linux/arm64 20-jdk</span>
-<span class="k">FROM</span><span class="s"> openjdk:latest</span>
-<span class="k">FROM</span><span class="s"> openjdk:20-jdk</span>
+<pre class="rouge highlight"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> debian:13-jdk</span>
+<span class="k">FROM</span><span class="s"> --platform=linux/arm64 debian:13-slim</span>
+<span class="k">FROM</span><span class="s"> debian:latest</span>
 <span class="k">FROM</span><span class="s"> --platform=linux/arm64 eclipse-temurin:20-jammy</span></code></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>INFO: openjdk ist bereits deprecated und kann nicht mehr verwendet werden</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_labs_2"><a class="anchor" href="#_labs_2"></a>2.2. Labs</h3>
+<div class="sect3">
+<h4 id="_aufgabe_java_programm_ausführen"><a class="anchor" href="#_aufgabe_java_programm_ausführen"></a>2.2.1. Aufgabe: Java-Programm ausführen</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Erstelle folgendes File in einem neuen Folder:</p>
 <div class="listingblock">
-<div class="title">HelloWorld.java</div>
+<div class="title">src/HelloWorld.java</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloWorld</span> <span class="o">{</span>
-    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
-        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Hello world!"</span><span class="o">);</span>
-    <span class="o">}</span>
+<pre class="rouge highlight"><code data-lang="java"><span class="kt">void</span> <span class="nf">main</span><span class="o">()</span> <span class="o">{</span>
+   <span class="no">IO</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Hello World!"</span><span class="o">);</span>
 <span class="o">}</span></code></pre>
 </div>
 </div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Wir benutzen Java 25+ und keine historischen Java-Versionen.
+</td>
+</tr>
+</table>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_beispiel_1"><a class="anchor" href="#_beispiel_1"></a>3. Beispiel 1</h2>
-<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Ausführen in der Shell:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> openjdk:latest </span><i class="conum" data-value="1"></i><b>(1)</b>
-<span class="k">COPY</span><span class="s"> ./src .  </span><i class="conum" data-value="2"></i><b>(2)</b>
-<span class="k">RUN </span>javac HelloWorld.java <i class="conum" data-value="3"></i><b>(3)</b>
-<span class="k">CMD</span><span class="s"> java HelloWorld </span><i class="conum" data-value="4"></i><b>(4)</b></code></pre>
+<pre class="rouge highlight"><code data-lang="shell">java HelloWorld.java</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>oder</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell">javac HelloWorld.java
+java HelloWorld</code></pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Erstellen eines Dockerfiles</p>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> debian:latest </span><i class="conum" data-value="1"></i><b>(1)</b>
+<span class="k">RUN </span>apt update <span class="o">&amp;&amp;</span> apt <span class="nb">install</span> <span class="nt">-y</span> openjdk-25-jdk <i class="conum" data-value="2"></i><b>(2)</b>
+<span class="k">COPY</span><span class="s"> ./src . </span><i class="conum" data-value="3"></i><b>(3)</b>
+<span class="k">RUN </span>java <span class="nt">-version</span> <i class="conum" data-value="4"></i><b>(4)</b>
+<span class="k">RUN </span>javac HelloWorld.java <i class="conum" data-value="5"></i><b>(5)</b>
+<span class="k">CMD</span><span class="s"> ["java", "HelloWorld"] </span><i class="conum" data-value="6"></i><b>(6)</b></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -976,29 +1099,44 @@ docker run <span class="nt">--rm</span> <span class="nt">-it</span> hello-world<
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Kopiert alle Files from Ordner ./src in den aktuellen Ordner im Image (root)</td>
+<td>Installiert das JDK 25</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>RUN führt ein Kommando aus</td>
+<td>Kopiert alle Files from Ordner ./src in den aktuellen Ordner im Image (root)</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Gibt die Java-Version aus (zur Ausgabe auf der Console verwenden wir <code>--no-cache --progress=plain</code>)</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>kompilieren des Java-Quellcodes</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
 <td>CMD ist der eine Befehl, weswegen der Container gestartet wird.</td>
 </tr>
 </table>
 </div>
+</li>
+<li>
+<p>Bauen des Images</p>
 <div class="listingblock">
-<div class="title">Bauen des Images</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="shell"> docker build <span class="nt">-t</span> hello-world .</code></pre>
+<pre class="rouge highlight"><code data-lang="shell">docker build <span class="nt">--no-cache</span> <span class="nt">--progress</span><span class="o">=</span>plain <span class="nt">-t</span> hello-world .</code></pre>
 </div>
 </div>
+</li>
+<li>
+<p>Starten des Containers</p>
 <div class="listingblock">
-<div class="title">Starten des Containers</div>
 <div class="content">
 <pre class="rouge highlight"><code data-lang="shell">docker run <span class="nt">--name</span> hello-world hello-world:latest</code></pre>
 </div>
+</div>
+</li>
+</ol>
 </div>
 <div class="listingblock">
 <div class="title">Ansehen des gestoppten Containers</div>
@@ -1013,41 +1151,55 @@ docker run <span class="nt">--rm</span> <span class="nt">-it</span> hello-world<
 </div>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_beispiel_2"><a class="anchor" href="#_beispiel_2"></a>4. Beispiel 2</h2>
-<div class="sectionbody">
+<div class="sect3">
+<h4 id="_verwendung_eines_kleineren_images"><a class="anchor" href="#_verwendung_eines_kleineren_images"></a>2.2.2. Verwendung eines kleineren Images</h4>
 <div class="ulist">
 <ul>
 <li>
-<p>Es wird nur das image gewechselt &#8594; Java auf Ubuntu</p>
+<p>Es wird nur das image gewechselt &#8594; eclipse-temurin:25-alpine, da dieses bereits das JDK 25 enthält und somit die Installation des JDKs im Dockerfile entfällt. Außerdem ist alpine ein sehr kleines Image, was die Größe des finalen Images reduziert.</p>
 </li>
 </ul>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> eclipse-temurin:20-jammy</span>
+<pre class="rouge highlight"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> eclipse-temurin:25-jdk-alpine-3.23 </span><i class="conum" data-value="1"></i><b>(1)</b>
 <span class="k">COPY</span><span class="s"> ./src .</span>
-<span class="k">RUN </span>javac HelloWorld.java
-<span class="k">CMD</span><span class="s"> java HelloWorld</span></code></pre>
+<span class="k">CMD</span><span class="s"> ["java", "HelloWorld.java"] </span><i class="conum" data-value="2"></i><b>(2)</b></code></pre>
 </div>
 </div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Nun ist genau festgelegt
 <div class="ulist">
 <ul>
 <li>
-<p>Nun ist genau festgelegt</p>
-<div class="ulist">
-<ul>
-<li>
-<p>welches JDK verwendet wird &#8594; temurin 20</p>
+<p>welches JDK verwendet wird &#8594; JDK 25 von <a href="https://adoptium.net/" target="_blank" rel="noopener">Eclipse Temurin</a></p>
 </li>
 <li>
-<p>welches OS verwendet wird &#8594; Ubuntu 22.04 LTS Jammy Jellyfish</p>
+<p>welches OS verwendet wird &#8594; <a href="https://www.alpinelinux.org/about/" target="_blank" rel="noopener">Alpine Linux 3.23</a>, welches sehr klein ist und somit die Größe des finalen Images reduziert</p>
 </li>
 </ul>
+</div></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Man muss eine Einklassen-Java-Applikation nicht (mehr) kompilieren, um lauffähig zu sein.</td>
+</tr>
+</table>
 </div>
-</li>
-</ul>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Das Bauen des Images ist sehr schnell, da nur der letzte Layer geändert wurde, da die vorherigen Layer gecached werden. Das ist ein großer Vorteil von Docker, da man so schnell Änderungen am Image vornehmen und testen kann, ohne jedes Mal das gesamte Image neu bauen zu müssen.
+</td>
+</tr>
+</table>
 </div>
 <div class="listingblock">
 <div class="title">Bauen des Images</div>
@@ -1058,8 +1210,9 @@ docker run <span class="nt">--rm</span> <span class="nt">-it</span> hello-world<
 <div class="listingblock">
 <div class="title">Starten des Containers</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="shell">docker run <span class="nt">--rm</span> <span class="se">\ </span> <i class="conum" data-value="1"></i><b>(1)</b>
-           <span class="nt">--name</span> hello-world hello-world:latest</code></pre>
+<pre class="rouge highlight"><code data-lang="shell">docker run <span class="nt">--rm</span> <span class="se">\ </span><i class="conum" data-value="1"></i><b>(1)</b>
+           <span class="nt">--name</span> hello-world <span class="se">\</span>
+           hello-world:latest</code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -1071,10 +1224,16 @@ docker run <span class="nt">--rm</span> <span class="nt">-it</span> hello-world<
 </table>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_beispiel_3"><a class="anchor" href="#_beispiel_3"></a>5. Beispiel 3</h2>
-<div class="sectionbody">
+<div class="sect3">
+<h4 id="_webseiten_am_nginx_publishen"><a class="anchor" href="#_webseiten_am_nginx_publishen"></a>2.2.3. Webseiten am nginx publishen</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Aufgabe:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Erstellen Sie ein docker image, das untenstehende Webseite mit nginx hostet.</p>
 <div class="listingblock">
 <div class="title">index.html</div>
 <div class="content">
@@ -1096,16 +1255,30 @@ docker run <span class="nt">--rm</span> <span class="nt">-it</span> hello-world<
 <span class="nt">&lt;/html&gt;</span></code></pre>
 </div>
 </div>
+</li>
+<li>
+<p>Nennen Sie das Image <code>my-webserver</code> mit der Version <code>v1.0</code>.</p>
+</li>
+<li>
+<p>Starten Sie den Webserver am Port 8080</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<details>
+<summary class="title">Lösung</summary>
+<div class="content">
 <div class="listingblock">
 <div class="title">Dockerfile</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> ubuntu:22.04</span>
+<pre class="rouge highlight"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> debian:trixie-slim</span>
 
-<span class="k">MAINTAINER</span><span class="s"> stuetz</span>
+<span class="k">LABEL</span><span class="s"> maintainer="Max Mustermann &lt;max@example.com&gt;"</span>
 
-<span class="k">RUN </span>apt update
-<span class="k">RUN </span>apt <span class="nb">install</span> <span class="nt">-y</span> nginx
-<span class="k">COPY</span><span class="s"> index.html /var/www/html/index.nginx-debian.html</span>
+<span class="k">RUN </span>apt update <span class="o">&amp;&amp;</span> RUN apt <span class="nb">install</span> <span class="nt">-y</span> nginx
+<span class="k">COPY</span><span class="s"> index.html /var/www/html/index.html</span>
 
 <span class="k">EXPOSE</span><span class="s"> 80</span>
 <span class="k">ENTRYPOINT</span><span class="s"> ["/usr/sbin/nginx", "-g", "daemon off;"]</span></code></pre>
@@ -1129,11 +1302,37 @@ docker run --rm \
 </li>
 </ul>
 </div>
+<div class="listingblock">
+<div class="title">Dockerfile</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> nginx:1.29-alpine3.23-slim</span>
+
+<span class="k">LABEL</span><span class="s"> maintainer="Max Mustermann &lt;max@example.com&gt;"</span>
+
+<span class="k">COPY</span><span class="s"> index.html /var/www/html/index.html</span>
+
+<span class="k">EXPOSE</span><span class="s"> 80</span>
+<span class="k">ENTRYPOINT</span><span class="s"> ["/usr/sbin/nginx", "-g", "daemon off;"]</span></code></pre>
 </div>
 </div>
-<div class="sect1">
-<h2 id="_cmd"><a class="anchor" href="#_cmd"></a>6. CMD</h2>
-<div class="sectionbody">
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Beachte, dass geänderte html-Verzeichnis. siehe auch <a href="https://betterstack.com/community/questions/what-is-default-public-www-location-in-nginx/" target="_blank" rel="noopener">Nginx Default Public Www Location?</a>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</details>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cmd"><a class="anchor" href="#_cmd"></a>2.3. CMD</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -1168,13 +1367,231 @@ docker run --rm \
 </li>
 </ul>
 </div>
+<div class="listingblock">
+<div class="content">
+<pre># Beispiel für einen Shell-Befehl
+echo "Hello, World!"</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_labs_3"><a class="anchor" href="#_labs_3"></a>2.4. Labs</h3>
+<div class="sect3">
+<h4 id="_aufgabe_cmd_vs_entrypoint"><a class="anchor" href="#_aufgabe_cmd_vs_entrypoint"></a>2.4.1. Aufgabe: CMD vs. ENTRYPOINT</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Experimentieren Sie mit <code>CMD</code> und <code>ENTRYPOINT</code> und deren Zusammenspiel. Erstellen Sie ein Dockerfile, das die Unterschiede demonstriert.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_docker_build_context"><a class="anchor" href="#_docker_build_context"></a>3. Docker Build Context</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><code>WORKDIR</code>: Festlegen des Arbeitsverzeichnisses</p>
+</li>
+<li>
+<p><code>COPY</code>: Kopieren von Dateien und Verzeichnissen</p>
+</li>
+<li>
+<p><code>ADD</code>: Erweiterte Kopierfunktionen (URLs, automatische Entpackung)</p>
+</li>
+<li>
+<p>Der <code>.dockerignore</code>-File: Ausschließen von Dateien aus dem Build-Kontext</p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/docker-build-context.png" alt="docker build context">
+</div>
+</div>
+<div class="sect2">
+<h3 id="_labs_4"><a class="anchor" href="#_labs_4"></a>3.1. Labs</h3>
+<div class="sect3">
+<h4 id="_pythonnode_js_anwendung"><a class="anchor" href="#_pythonnode_js_anwendung"></a>3.1.1. Python/Node.js Anwendung</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Erstellen Sie ein Dockerfile, das eine kleine Python- oder Node.js-Anwendung in das Image kopiert und ausführt.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_copy_vs_add"><a class="anchor" href="#_copy_vs_add"></a>3.1.2. COPY vs. ADD</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Demonstrieren Sie den Unterschied zwischen <code>COPY</code> und <code>ADD</code> (z.B. mit TAR-Archiven oder URLs bei <code>ADD</code>).</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_dockerignore"><a class="anchor" href="#_dockerignore"></a>3.1.3. .dockerignore</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Fügen Sie eine <code>.dockerignore</code>-Datei hinzu, um bestimmte Dateien vom Build-Kontext auszuschließen (z.B. <code>.git</code>, <code>node_modules</code>). Zeigen Sie, dass diese Dateien nicht im Image landen.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_umgebungsvariablen_und_ports"><a class="anchor" href="#_umgebungsvariablen_und_ports"></a>4. Umgebungsvariablen und Ports</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><code>ENV</code>: Definieren von Umgebungsvariablen</p>
+</li>
+<li>
+<p><code>EXPOSE</code>: Dokumentation von exposed Ports</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_labs_5"><a class="anchor" href="#_labs_5"></a>4.1. Labs</h3>
+<div class="sect3">
+<h4 id="_konfigurierbare_anwendung"><a class="anchor" href="#_konfigurierbare_anwendung"></a>4.1.1. Konfigurierbare Anwendung</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Erstellen Sie ein java-Programm, das durch environment-Variablen konfiguriert wird:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Je nachdem welchen Wert die ENV-Variable <code>APP_COLOR</code> hat, soll die Ausgabe in einer anderen Farbe erfolgen (zB rot, grün, gelb, blau). Wenn die Variable nicht gesetzt ist, soll die Ausgabe in der Standardfarbe erfolgen.</p>
+<div class="imageblock">
+<div class="content">
+<img src="images/lab-1020-java-result.png" alt="lab 1020 java result">
+</div>
+</div>
+<details>
+<summary class="title">Lösung</summary>
+<div class="content">
+<div class="listingblock">
+<div class="title">src/Main.java</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java"><span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// Direkter Zugriff auf die Docker-Umgebungsvariable</span>
+    <span class="nc">String</span> <span class="n">colorEnv</span> <span class="o">=</span> <span class="nc">System</span><span class="o">.</span><span class="na">getenv</span><span class="o">(</span><span class="s">"APP_COLOR"</span><span class="o">);</span>
+
+    <span class="nc">String</span> <span class="n">colorCode</span><span class="o">;</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">colorEnv</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">colorCode</span> <span class="o">=</span> <span class="s">"\u001B[0m"</span><span class="o">;</span> <span class="c1">// Reset</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+        <span class="k">switch</span> <span class="o">(</span><span class="n">colorEnv</span><span class="o">.</span><span class="na">toUpperCase</span><span class="o">())</span> <span class="o">{</span>
+            <span class="k">case</span> <span class="s">"RED"</span><span class="o">:</span>
+                <span class="n">colorCode</span> <span class="o">=</span> <span class="s">"\u001B[41m"</span><span class="o">;</span>
+                <span class="k">break</span><span class="o">;</span>
+            <span class="k">case</span> <span class="s">"GREEN"</span><span class="o">:</span>
+                <span class="n">colorCode</span> <span class="o">=</span> <span class="s">"\u001B[42m"</span><span class="o">;</span>
+                <span class="k">break</span><span class="o">;</span>
+            <span class="k">case</span> <span class="s">"YELLOW"</span><span class="o">:</span>
+                <span class="n">colorCode</span> <span class="o">=</span> <span class="s">"\u001B[43m"</span><span class="o">;</span>
+                <span class="k">break</span><span class="o">;</span>
+            <span class="k">case</span> <span class="s">"BLUE"</span><span class="o">:</span>
+                <span class="n">colorCode</span> <span class="o">=</span> <span class="s">"\u001B[44m"</span><span class="o">;</span>
+                <span class="k">break</span><span class="o">;</span>
+            <span class="k">default</span><span class="o">:</span>
+                <span class="n">colorCode</span> <span class="o">=</span> <span class="s">"\u001B[0m"</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="no">IO</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">colorCode</span> <span class="o">+</span> <span class="s">"                                         "</span> <span class="o">+</span> <span class="s">"\u001B[0m"</span><span class="o">);</span>
+    <span class="no">IO</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">colorCode</span> <span class="o">+</span> <span class="s">"    HALLO AUS DER JAVA-DOCKER-WELT!      "</span> <span class="o">+</span> <span class="s">"\u001B[0m"</span><span class="o">);</span>
+    <span class="no">IO</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">colorCode</span> <span class="o">+</span> <span class="s">"    Farbe aus ENV: "</span> <span class="o">+</span> <span class="o">(</span><span class="n">colorEnv</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">?</span> <span class="n">colorEnv</span> <span class="o">:</span> <span class="s">"Standard"</span><span class="o">)</span> <span class="o">+</span> <span class="s">" "</span><span class="o">.</span><span class="na">repeat</span><span class="o">(</span><span class="mi">22</span><span class="o">-</span><span class="n">colorEnv</span><span class="o">.</span><span class="na">length</span><span class="o">())</span> <span class="o">+</span> <span class="s">"\u001B[0m"</span><span class="o">);</span>
+    <span class="no">IO</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">colorCode</span> <span class="o">+</span> <span class="s">"                                         "</span> <span class="o">+</span> <span class="s">"\u001B[0m"</span><span class="o">);</span>
+
+<span class="o">}</span></code></pre>
+</div>
+</div>
+</div>
+</details>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Erstellen sie ein Dockerfile, das dieses Java-Programm in ein Image packt und die Umgebungsvariable <code>APP_COLOR</code> auf "RED" setzt.</p>
+<details>
+<summary class="title">Lösung</summary>
+<div class="content">
+<div class="listingblock">
+<div class="title">Dockerfile</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="dockerfile"><span class="k">FROM</span><span class="s"> eclipse-temurin:25-jdk-alpine-3.23</span>
+<span class="k">COPY</span><span class="s"> src/Main.java /app/Main.java</span>
+<span class="k">WORKDIR</span><span class="s"> /app</span>
+<span class="k">ENV</span><span class="s"> APP_COLOR=BLUE</span>
+<span class="k">CMD</span><span class="s"> ["java", "Main.java"]</span></code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Auch hier ersparen wir uns das Kompilieren, da es sich um eine Einklassen-Java-Applikation handelt. Bei komplexeren Java-Anwendungen würde man natürlich den Quellcode kompilieren und die .class-Dateien oder das .jar-File in das Image kopieren.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</details>
+</li>
+<li>
+<p>Bauen Sie das Image</p>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell">docker build <span class="nt">-t</span> my-java-env-test:1.0 .</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Starten Sie den Container</p>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell">docker run <span class="nt">--rm</span> <span class="nt">--name</span> java-env-test  my-java-env-test:1.0</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Überschreiben Sie die Farbe beim Starten des Containers, indem Sie die Umgebungsvariable <code>APP_COLOR</code> auf "GREEN" setzen.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="shell">docker run <span class="nt">--rm</span> <span class="se">\</span>
+           <span class="nt">--name</span> java-env-test <span class="se">\</span>
+           <span class="nt">-e</span> <span class="nv">APP_COLOR</span><span class="o">=</span>GREEN <span class="se">\</span>
+           my-java-env-test:1.0</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 2.0.0<br>
-Last updated 2026-02-14 15:20:10 UTC
+Last updated 2026-02-16 13:34:40 UTC
 </div>
 </div>
 </body>

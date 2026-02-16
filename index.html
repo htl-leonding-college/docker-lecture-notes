@@ -437,13 +437,77 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
-pre.rouge .hll {
-  background-color: #ffc;
-}
-pre.rouge .hll * {
-  background-color: initial;
-}
+    /* Positionierung des Buttons */
+    .listingblock {
+        position: relative;
+    }
+    .copy-button {
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 10;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        color: #fff;
+        background-color: #555;
+        border: none;
+        border-radius: 0 0 0 4px;
+        cursor: pointer;
+        opacity: 0.6;
+        transition: opacity 0.2s;
+    }
+    .copy-button:hover {
+        opacity: 1;
+        background-color: #333;
+    }
+    .copy-button.clicked {
+        background-color: #28a745;
+    }
 </style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Alle Code-Blöcke finden
+        var blocks = document.querySelectorAll('.listingblock');
+
+        blocks.forEach(function(block) {
+            // Den eigentlichen Code-Container finden (pre)
+            var pre = block.querySelector('pre');
+            if (!pre) return;
+
+            // Button erstellen
+            var button = document.createElement('button');
+            button.className = 'copy-button';
+            button.innerText = 'Copy';
+
+            // Klick-Event
+            button.addEventListener('click', function() {
+                // Text holen (innerText ignoriert HTML-Tags vom Syntax-Highlighting)
+                var code = pre.innerText;
+
+                // Leerzeichen nach einem Backslash am Zeilenende entfernen
+                code = code.replace(/\\([ \t\u00A0]+)$/gm, '\\');
+
+                // In Zwischenablage kopieren
+                navigator.clipboard.writeText(code).then(function() {
+                    // Feedback geben
+                    var originalText = button.innerText;
+                    button.innerText = 'Copied!';
+                    button.classList.add('clicked');
+
+                    setTimeout(function() {
+                        button.innerText = originalText;
+                        button.classList.remove('clicked');
+                    }, 2000);
+                }, function(err) {
+                    console.error('Could not copy text: ', err);
+                });
+            });
+
+            block.appendChild(button);
+        });
+    });
+</script>
 </head>
 <body class="article toc2 toc-left">
 <div id="header">
@@ -548,7 +612,7 @@ pre.rouge .hll * {
 <div id="footer">
 <div id="footer-text">
 Version 1.0.0<br>
-Last updated 2026-02-14 15:20:10 UTC
+Last updated 2026-02-16 13:34:40 UTC
 </div>
 </div>
 </body>
