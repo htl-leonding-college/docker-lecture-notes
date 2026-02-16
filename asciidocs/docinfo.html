@@ -47,6 +47,9 @@
                 // Text holen (innerText ignoriert HTML-Tags vom Syntax-Highlighting)
                 var code = pre.innerText;
 
+                // Leerzeichen nach einem Backslash am Zeilenende entfernen
+                code = code.replace(/\\([ \t\u00A0]+)$/gm, '\\');
+
                 // In Zwischenablage kopieren
                 navigator.clipboard.writeText(code).then(function() {
                     // Feedback geben
