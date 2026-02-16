@@ -1472,7 +1472,7 @@ echo "Hello, World!"</pre>
 <div class="ulist">
 <ul>
 <li>
-<p>Je nachdem welchen Wert die ENV-Variable <code>APP_COLOR</code> hat, soll die Ausgabe in einer anderen Farbe erfolgen (zB rot, grün, gelb, blau). Wenn die Variable nicht gesetzt ist, soll die Ausgabe in der Standardfarbe erfolgen.</p>
+<p>Je nachdem welchen Wert die ENV-Variable <code>APP_COLOR</code> hat, soll die Ausgabe in dieser Farbe erfolgen (zB rot, grün, gelb, blau). Wenn die Variable nicht gesetzt ist, soll die Ausgabe ohne Farbgebung erfolgen.</p>
 <div class="imageblock">
 <div class="content">
 <img src="images/lab-1020-java-result.png" alt="lab 1020 java result">
@@ -1569,6 +1569,11 @@ Auch hier ersparen wir uns das Kompilieren, da es sich um eine Einklassen-Java-A
 <pre class="rouge highlight"><code data-lang="shell">docker run <span class="nt">--rm</span> <span class="nt">--name</span> java-env-test  my-java-env-test:1.0</code></pre>
 </div>
 </div>
+<div class="imageblock">
+<div class="content">
+<img src="images/lab-1020-java-result-2.png" alt="lab 1020 java result 2">
+</div>
+</div>
 </li>
 <li>
 <p>Überschreiben Sie die Farbe beim Starten des Containers, indem Sie die Umgebungsvariable <code>APP_COLOR</code> auf "GREEN" setzen.</p>
@@ -1578,6 +1583,11 @@ Auch hier ersparen wir uns das Kompilieren, da es sich um eine Einklassen-Java-A
            <span class="nt">--name</span> java-env-test <span class="se">\</span>
            <span class="nt">-e</span> <span class="nv">APP_COLOR</span><span class="o">=</span>GREEN <span class="se">\</span>
            my-java-env-test:1.0</code></pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/lab-1020-java-result-3.png" alt="lab 1020 java result 3">
 </div>
 </div>
 </li>
@@ -1591,7 +1601,7 @@ Auch hier ersparen wir uns das Kompilieren, da es sich um eine Einklassen-Java-A
 <div id="footer">
 <div id="footer-text">
 Version 2.0.0<br>
-Last updated 2026-02-16 13:34:40 UTC
+Last updated 2026-02-16 13:43:06 UTC
 </div>
 </div>
 </body>
