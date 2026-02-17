@@ -520,15 +520,15 @@ image::docker-build-context.png[]
 
 === Labs
 
-==== Python/Node.js Anwendung
-* Erstellen Sie ein Dockerfile, das eine kleine Python- oder Node.js-Anwendung in das Image kopiert und ausführt.
+==== Quarkus/Python/Node.js Anwendung
+* Erstellen Sie ein Dockerfile, das eine kleine Quarkus-, Python- oder Node.js-Anwendung in das Image kopiert und ausführt.
 
 ==== COPY vs. ADD
 * Demonstrieren Sie den Unterschied zwischen `COPY` und `ADD` (z.B. mit TAR-Archiven oder URLs bei `ADD`).
 
 ==== .dockerignore
 
-* Fügen Sie eine `.dockerignore`-Datei hinzu, um bestimmte Dateien vom Build-Kontext auszuschließen (z.B. `.git`, `node_modules`). Zeigen Sie, dass diese Dateien nicht im Image landen.
+* Fügen Sie eine `.dockerignore`-Datei hinzu, um bestimmte Dateien vom Build-Kontext auszuschließen (z.B. `.git`, `node_modules`, `target`). Zeigen Sie, dass diese Dateien nicht im Image landen.
 
 
 == Umgebungsvariablen und Ports
